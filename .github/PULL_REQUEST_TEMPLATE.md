@@ -1,4 +1,4 @@
-## 📋 Description
+﻿## 📋 Description
 
 <!-- Summarize what this PR does and why -->
 
@@ -22,7 +22,7 @@ Closes #<!-- issue number -->
 ## 🏗️ Affected Service(s)
 
 - [ ] Catalog API
-- [ ] Basket API
+- [ ] Cart API
 - [ ] Discount gRPC
 - [ ] Ordering API
 - [ ] Tracking API

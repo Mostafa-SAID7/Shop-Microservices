@@ -1,4 +1,4 @@
-# 🎯 Shop Microservices - Setup & Deployment Guide
+﻿# 🎯 Shop Microservices - Setup & Deployment Guide
 
 **Current Status:** ✅ **READY FOR DEPLOYMENT**
 
@@ -89,7 +89,7 @@ Open in browser: https://localhost:6065
     └─────────────────────────┘
     
 Databases:
-- PostgreSQL (Catalog, Basket, Tracking)
+- PostgreSQL (Catalog, Cart, Tracking)
 - SQL Server (Orders, Payments)
 - Redis (Distributed Cache)
 - SQLite (Discount)
@@ -102,7 +102,7 @@ Databases:
 | Service | Port | Type | Database | Purpose |
 |---------|------|------|----------|---------|
 | **Catalog** | 6060 | REST API | PostgreSQL | Product catalog management |
-| **Basket** | 6061 | REST API | PostgreSQL + Redis | Shopping cart with caching |
+| **Cart** | 6061 | REST API | PostgreSQL + Redis | Shopping cart with caching |
 | **Discount** | 6062 | gRPC | SQLite | Fast discount calculations |
 | **Ordering** | 6063 | REST API | SQL Server | Order processing & DDD |
 | **Tracking** | 6066 | REST API | PostgreSQL | Order status tracking |
@@ -130,7 +130,7 @@ Databases:
    - Open https://localhost:6065
    - Should see product list
    
-2. **Add to Basket** (Basket Service + Discount gRPC)
+2. **Add to Cart** (Cart Service + Discount gRPC)
    - Add items to cart
    - Should apply discounts automatically
 
@@ -248,7 +248,7 @@ docker-compose restart catalogdb
 | API Gateway | http://localhost:6064 | API endpoint |
 | RabbitMQ | http://localhost:15672 | Message broker (guest/guest) |
 | Catalog API | http://localhost:6000 | Direct catalog API |
-| Basket API | http://localhost:6001 | Direct basket API |
+| Cart API | http://localhost:6001 | Direct Cart API |
 | Ordering API | http://localhost:6003 | Direct ordering API |
 
 ---

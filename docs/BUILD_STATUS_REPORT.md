@@ -1,4 +1,4 @@
-# 📋 Build Status Report - Shop Microservices
+﻿# 📋 Build Status Report - Shop Microservices
 
 **Generated:** August 5, 2026 | **Status:** ✅ SUCCESS
 
@@ -156,7 +156,7 @@ Shopping Web UI:  https://localhost:6065
 API Gateway:      http://localhost:6064
 RabbitMQ Admin:   http://localhost:15672 (guest/guest)
 Catalog API:      http://localhost:6060
-Basket API:       http://localhost:6061
+Cart API:       http://localhost:6061
 Ordering API:     http://localhost:6063
 ```
 
@@ -167,7 +167,7 @@ Ordering API:     http://localhost:6063
 | Service | Port HTTP | Port HTTPS | Database | Status |
 |---------|-----------|------------|----------|--------|
 | Catalog API | 6000 | 6060 | PostgreSQL | ✅ Ready |
-| Basket API | 6001 | 6061 | PostgreSQL | ✅ Ready |
+| Cart API | 6001 | 6061 | PostgreSQL | ✅ Ready |
 | Discount gRPC | 6002 | 6062 | SQLite | ✅ Ready |
 | Ordering API | 6003 | 6063 | SQL Server | ✅ Ready |
 | Tracking API | 6006 | 6066 | PostgreSQL | ✅ Ready |
@@ -260,7 +260,7 @@ After this setup, the following docs are available:
 - View product details
 - Product search
 
-### Basket Service
+### Cart Service
 - Add/remove items
 - Update quantities
 - Apply discounts
@@ -379,7 +379,7 @@ Open: https://localhost:6065
 
 1. **Start Services** - Get everything running
 2. **Browse Products** - Test Catalog service
-3. **Add to Basket** - Test Basket service + Discount gRPC
+3. **Add to Cart** - Test Cart Service + Discount gRPC
 4. **Checkout** - Test event processing via RabbitMQ
 5. **Monitor RabbitMQ** - See events flowing through queue
 6. **Check Database** - Verify data persistence

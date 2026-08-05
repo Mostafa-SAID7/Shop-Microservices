@@ -1,4 +1,4 @@
----
+﻿---
 name: 💡 Feature Request
 about: Propose a new feature or improvement
 title: "[Feature]: "
@@ -25,7 +25,7 @@ assignees: ["Mostafa-SAID7"]
 ## 📦 Affected Service(s)
 
 - [ ] Catalog API
-- [ ] Basket API
+- [ ] Cart API
 - [ ] Discount gRPC
 - [ ] Ordering API
 - [ ] Tracking API

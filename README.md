@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 # 🛒 Shop Microservices
 
@@ -37,7 +37,7 @@ Browser → Shopping.Web (6065)
 | Service | Port | Stack | Database | Pattern |
 |---------|------|-------|----------|---------|
 | **Catalog** | 6060 | Minimal API | PostgreSQL | Vertical Slice + CQRS |
-| **Basket** | 6061 | Web API | PostgreSQL + Redis | Cache-Aside |
+| **Cart** | 6061 | Web API | PostgreSQL + Redis | Cache-Aside |
 | **Discount** | 6062 | gRPC | SQLite | Protobuf RPC |
 | **Ordering** | 6063 | Web API | SQL Server | DDD + Clean Arch |
 | **Tracking** | 6066 | Web API | PostgreSQL | Event-Driven |

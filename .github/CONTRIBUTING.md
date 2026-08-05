@@ -1,4 +1,4 @@
-# Contributing to Shop Microservices
+﻿# Contributing to Shop Microservices
 
 Thank you for your interest in contributing! 🎉  
 This document outlines everything you need to know to get started.
@@ -45,7 +45,7 @@ By participating, you agree to uphold these standards.
 | Type | Pattern | Example |
 |------|---------|---------|
 | Feature | `feat/<short-description>` | `feat/add-payment-webhook` |
-| Bug fix | `fix/<short-description>` | `fix/basket-redis-timeout` |
+| Bug fix | `fix/<short-description>` | `fix/cart-redis-timeout` |
 | Docs | `docs/<short-description>` | `docs/update-startup-guide` |
 | Refactor | `refactor/<short-description>` | `refactor/ordering-clean-arch` |
 | Chore | `chore/<short-description>` | `chore/upgrade-masstransit` |
@@ -69,7 +69,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 **Examples:**
 ```
-feat(basket): add cache TTL configuration via appsettings
+feat(cart): add cache TTL configuration via appsettings
 fix(ordering): resolve null reference in CreateOrderHandler
 docs(readme): add architecture diagram
 ci: add dotnet build workflow
@@ -98,7 +98,7 @@ ci: add dotnet build workflow
 ## Coding Standards
 
 - **C# 12** features are encouraged where they improve clarity
-- Follow **Vertical Slice Architecture** for new features in Catalog/Basket services
+- Follow **Vertical Slice Architecture** for new features in Catalog/Cart Services
 - Follow **Clean Architecture** layers for changes to the Ordering service
 - Use **MediatR** commands/queries — do not put business logic in controllers or endpoints
 - Always add **FluentValidation** for any new command/query inputs

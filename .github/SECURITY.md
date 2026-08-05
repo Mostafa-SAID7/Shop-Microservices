@@ -1,4 +1,4 @@
-# Security Policy
+﻿# Security Policy
 
 ## Supported Versions
 
@@ -31,7 +31,7 @@ Send details to the repository owner via GitHub profile: [@Mostafa-SAID7](https:
 
 - **Description** of the vulnerability
 - **Steps to reproduce** (proof of concept if possible)
-- **Affected service(s)** (Catalog, Basket, Ordering, etc.)
+- **Affected service(s)** (Catalog, Cart, Ordering, etc.)
 - **Potential impact** (data exposure, RCE, SSRF, etc.)
 - **Suggested fix** (optional but appreciated)
 

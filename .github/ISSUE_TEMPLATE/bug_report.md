@@ -1,4 +1,4 @@
----
+﻿---
 name: 🐛 Bug Report
 about: Report a reproducible bug or unexpected behavior
 title: "[Bug]: "
@@ -32,7 +32,7 @@ assignees: ["Mostafa-SAID7"]
 | OS | <!-- Windows 11 / Ubuntu 22.04 / macOS --> |
 | .NET SDK | <!-- `dotnet --version` --> |
 | Docker version | <!-- `docker --version` --> |
-| Service affected | <!-- Catalog / Basket / Ordering / etc. --> |
+| Service affected | <!-- Catalog / Cart / Ordering / etc. --> |
 
 ## 📎 Logs
 

@@ -1,4 +1,4 @@
-# 🚀 Quick Start Guide - Shop Microservices
+﻿# 🚀 Quick Start Guide - Shop Microservices
 
 **Status:** ✅ Solution built successfully with no errors (12 warnings - non-critical)  
 **Framework:** .NET 8.0  
@@ -110,7 +110,7 @@ docker ps
 
 1. **Open Shopping Web UI:** https://localhost:6065
 2. **Browse Products** - Should see catalog items
-3. **Add to Basket** - Add items to cart
+3. **Add to Cart** - Add items to cart
 4. **Checkout** - Process order
 5. **Watch RabbitMQ** - Open http://localhost:15672 to see events being processed
 
@@ -140,7 +140,7 @@ docker-compose up -d catalogdb basketdb distributedcache orderdb messagebroker
 cd "Shop-Microservices\src\Services\Catalog\Catalog.API"
 dotnet run
 
-# Terminal 2 - Basket API
+# Terminal 2 - Cart API
 cd "Shop-Microservices\src\Services\Basket\Basket.API"
 dotnet run
 
@@ -259,8 +259,8 @@ docker-compose logs basket.api | Select-String "error"
 ```
 GET    http://localhost:6064/api/products                    # List all products
 GET    http://localhost:6064/api/products/{id}               # Get product
-GET    http://localhost:6064/api/baskets/{username}          # Get basket
-POST   http://localhost:6064/api/baskets/{username}/items    # Add item to basket
+GET    http://localhost:6064/api/baskets/{username}          # Get cart
+POST   http://localhost:6064/api/baskets/{username}/items    # Add item to cart
 POST   http://localhost:6064/api/orders                      # Create order
 GET    http://localhost:6064/api/orders/{userId}             # Get user orders
 ```
@@ -331,7 +331,7 @@ docker-compose restart catalogdb
 docker-compose logs catalogdb
 ```
 
-### Problem: "gRPC connection failed" (Basket → Discount)
+### Problem: "gRPC connection failed" (Cart → Discount)
 
 **Solution:**
 ```powershell
@@ -375,8 +375,8 @@ https://localhost:6065
 - Page should load with products
 - If not, check logs: `docker-compose logs catalog.api`
 
-### 5. Test Basket Operations
-- Add products to basket
+### 5. Test Cart Operations
+- Add products to cart
 - Modify quantities
 - If not working, check: `docker-compose logs basket.api`
 
@@ -411,7 +411,7 @@ YarpApiGateway (Port 6064) - Rate Limited
       └→ [Subscribe] RabbitMQ
 
 Databases:
-  - PostgreSQL: Catalog (5432), Basket (5433), Tracking (5434)
+  - PostgreSQL: Catalog (5432), Cart (5433), Tracking (5434)
   - SQL Server: Orders (1433), Payments (1434)
   - Redis: Cache (6379)
   - RabbitMQ: Messages (5672, Admin: 15672)
@@ -426,8 +426,8 @@ Databases:
 - [x] Product details with descriptions
 - [x] Add/remove products
 
-### Basket Service
-- [x] Add items to basket
+### Cart Service
+- [x] Add items to cart
 - [x] Update quantities
 - [x] Remove items
 - [x] Get discount from Discount service
@@ -465,7 +465,7 @@ src/
 ├── eshop-microservices.sln          # Solution file
 ├── Services/
 │   ├── Catalog/Catalog.API/         # Catalog microservice
-│   ├── Basket/Basket.API/           # Basket microservice
+│   ├── Basket/Basket.API/           # Cart Microservice
 │   ├── Discount/Discount.Grpc/      # Discount microservice
 │   ├── Ordering/Ordering.API/       # Ordering microservice
 │   ├── Tracking/Tracking.API/       # Tracking microservice

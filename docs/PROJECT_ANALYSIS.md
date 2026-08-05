@@ -1,4 +1,4 @@
-# Shop Microservices - Complete Analysis & Build Guide
+﻿# Shop Microservices - Complete Analysis & Build Guide
 
 ## 📋 Project Overview
 
@@ -50,7 +50,7 @@ This is a comprehensive .NET 8 microservices e-commerce platform demonstrating m
   └────────┘ └─────────┘ └──────┘ └────────┘
 
 Additional:
-- Redis Cache (Port 6379) - Distributed Cache for Basket
+- Redis Cache (Port 6379) - Distributed Cache for Cart
 - Discount gRPC (Port 6062) - Synchronous Service
 ```
 
@@ -69,7 +69,7 @@ Additional:
   - Health Checks
   - Async Event Publishing to RabbitMQ
 
-### 2. **Basket API** (Port 6061)
+### 2. **Cart API** (Port 6061)
 - **Framework:** ASP.NET Core Web API (.NET 8)
 - **Database:** PostgreSQL (Port 5433)
 - **Cache:** Redis (Port 6379)
@@ -136,7 +136,7 @@ Additional:
 - **Key Features:**
   - Calls APIs via Yarp Gateway
   - Refit for HTTP Client Factory
-  - Product Browsing, Basket Management
+  - Product Browsing, Cart Management
   - Order Checkout
 
 ---
@@ -146,7 +146,7 @@ Additional:
 | Service | Database | Type | Port | Purpose |
 |---------|----------|------|------|---------|
 | Catalog | PostgreSQL | Relational | 5432 | Product Catalog Storage |
-| Basket | PostgreSQL | Relational | 5433 | Basket/Cart Data |
+| Basket | PostgreSQL | Relational | 5433 | Cart Data |
 | Discount | SQLite | Embedded | - | Discount Rules (File-based) |
 | Ordering | SQL Server | Relational | 1433 | Orders & Business Logic |
 | Tracking | PostgreSQL | Relational | 5434 | Order Tracking |

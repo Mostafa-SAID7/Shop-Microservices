@@ -1,4 +1,4 @@
-# 🔬 Technical Deep Dive - Shop Microservices Architecture
+﻿# 🔬 Technical Deep Dive - Shop Microservices Architecture
 
 ---
 
@@ -59,7 +59,7 @@ Server=catalogdb;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres
 
 ---
 
-## 2️⃣ Basket Microservice
+## 2️⃣ Cart Microservice
 
 ### Overview
 - **Technology:** ASP.NET Core Web API (.NET 8)
@@ -70,8 +70,8 @@ Server=catalogdb;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres
 ### Key Components
 
 #### Data Layer
-- **PostgreSQL:** Persistent basket storage
-- **Marten:** Event sourcing for basket history
+- **PostgreSQL:** Persistent cart storage
+- **Marten:** Event sourcing for cart history
 - **Redis:** Distributed cache for performance
   - Cache-Aside Pattern
   - TTL-based expiration
@@ -265,7 +265,7 @@ public class OrderContext : DbContext
 
 #### Event Consumption
 ```csharp
-// Subscribe to BasketCheckout event from Basket service
+// Subscribe to BasketCheckout event from Cart Service
 public class BasketCheckoutEventConsumer : IConsumer<BasketCheckoutEvent>
 {
     public async Task Consume(ConsumeContext<BasketCheckoutEvent> context)
@@ -629,7 +629,7 @@ Service B processes independently
 
 ## 🗄️ Database Strategies
 
-### PostgreSQL (Catalog, Basket, Tracking)
+### PostgreSQL (Catalog, Cart, Tracking)
 - **Use case:** Document storage, event sourcing
 - **Advantages:** JSONB support, scalability, open source
 - **Marten:** JSONB document database
