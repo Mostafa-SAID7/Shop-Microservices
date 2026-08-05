@@ -1,0 +1,206 @@
+name: 🧪 CI — Build & Test
+
+on:
+  push:
+    branches: [ master, develop, "feature/**", "release/**", "hotfix/**" ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches: [ master, develop ]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 1: Build the entire solution
+  # ─────────────────────────────────────────────────────────────────────────────
+  build:
+    name: 🔨 Build Solution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 💾 Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore src/eshop-microservices.sln
+
+      - name: 🔨 Build — Release
+        run: dotnet build src/eshop-microservices.sln --no-restore --configuration Release
+
+      - name: 📋 Build Summary
+        if: always()
+        run: |
+          echo "### 🔨 Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Solution | eshop-microservices.sln |" >> $GITHUB_STEP_SUMMARY
+          echo "| .NET | ${{ env.DOTNET_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 2: Unit Tests — Identity, Notification, Cart
+  # ─────────────────────────────────────────────────────────────────────────────
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 💾 Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: 📦 Restore
+        run: dotnet restore src/eshop-microservices.sln
+
+      - name: 🧪 Identity Unit Tests (TokenService, UserStore)
+        run: |
+          dotnet test tests/Services/Identity/Identity.API.Tests/Identity.API.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            --filter "FullyQualifiedName~Unit" \
+            --logger "trx;LogFileName=identity-unit.trx" \
+            --results-directory ./test-results \
+            --verbosity normal
+
+      - name: 🧪 Notification Unit Tests (EventHandlers, Events)
+        run: |
+          dotnet test tests/Services/Notification/Notification.API.Tests/Notification.API.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            --filter "FullyQualifiedName~Unit" \
+            --logger "trx;LogFileName=notification-unit.trx" \
+            --results-directory ./test-results \
+            --verbosity normal
+
+      - name: 🧪 Cart Unit Tests (ShoppingCart Model)
+        run: |
+          dotnet test tests/Services/Cart/Cart.API.Tests/Cart.API.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            --filter "FullyQualifiedName~Unit" \
+            --logger "trx;LogFileName=cart-unit.trx" \
+            --results-directory ./test-results \
+            --verbosity normal
+
+      - name: 📊 Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Unit Test Results
+          path: ./test-results/*.trx
+          reporter: dotnet-trx
+          fail-on-error: true
+
+      - name: 📋 Test Summary
+        if: always()
+        run: |
+          echo "### 🧪 Unit Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Suite | Tests |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Identity.API.Tests | TokenService (4), UserStore (3) = **7 tests** |" >> $GITHUB_STEP_SUMMARY
+          echo "| Notification.API.Tests | EventHandlers (4) = **4 tests** |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cart.API.Tests | CartModel (2) = **2 tests** |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total** | **13 unit tests** |" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 3: Integration Tests — Identity HTTP endpoints (in-memory, no broker)
+  # ─────────────────────────────────────────────────────────────────────────────
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 💾 Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: 📦 Restore
+        run: dotnet restore src/eshop-microservices.sln
+
+      - name: 🔗 Identity Integration Tests (WebApplicationFactory + in-memory MassTransit)
+        run: |
+          dotnet test tests/Services/Identity/Identity.API.Tests/Identity.API.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            --filter "FullyQualifiedName~Integration" \
+            --logger "trx;LogFileName=identity-integration.trx" \
+            --results-directory ./test-results \
+            --verbosity normal
+
+      - name: 📊 Publish Integration Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Integration Test Results
+          path: ./test-results/*.trx
+          reporter: dotnet-trx
+          fail-on-error: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 4: All tests full run (single command, used for PR gate)
+  # ─────────────────────────────────────────────────────────────────────────────
+  all-tests:
+    name: ✅ All Tests Gate
+    runs-on: ubuntu-latest
+    needs: [ unit-tests, integration-tests ]
+    if: always()
+
+    steps:
+      - name: ✅ All Tests Passed
+        if: ${{ needs.unit-tests.result == 'success' && needs.integration-tests.result == 'success' }}
+        run: |
+          echo "### ✅ All tests passed — PR is ready to merge" >> $GITHUB_STEP_SUMMARY
+
+      - name: ❌ Tests Failed
+        if: ${{ needs.unit-tests.result != 'success' || needs.integration-tests.result != 'success' }}
+        run: |
+          echo "### ❌ Some tests failed — do not merge" >> $GITHUB_STEP_SUMMARY
+          exit 1

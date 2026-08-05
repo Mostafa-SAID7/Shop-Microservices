@@ -76,3 +76,6 @@ app.MapCarter();
 app.Logger.LogInformation("🚀 Identity.API started — listening on {Urls}", builder.Configuration["ASPNETCORE_URLS"] ?? "http://+:8080");
 
 app.Run();
+
+// Make Program accessible to integration tests (WebApplicationFactory)
+public partial class Program { }

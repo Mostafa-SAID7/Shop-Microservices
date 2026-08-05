@@ -1,0 +1,95 @@
+name: 🔒 Security Scan
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+  schedule:
+    # Run every Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # CodeQL — Static analysis for C# vulnerabilities
+  # ─────────────────────────────────────────────────────────────────────────────
+  codeql:
+    name: 🔍 CodeQL Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 🔍 Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          queries: security-and-quality
+
+      - name: 🔨 Build for Analysis
+        run: |
+          dotnet restore src/eshop-microservices.sln
+          dotnet build src/eshop-microservices.sln --no-restore --configuration Release
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:csharp"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NuGet vulnerability audit
+  # ─────────────────────────────────────────────────────────────────────────────
+  dependency-audit:
+    name: 📦 NuGet Vulnerability Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 🔍 Audit NuGet dependencies
+        run: |
+          dotnet restore src/eshop-microservices.sln
+          dotnet list src/eshop-microservices.sln package --vulnerable --include-transitive 2>&1 | tee audit.txt
+
+          if grep -q "has the following vulnerable packages" audit.txt; then
+            echo "## ⚠️ Vulnerable NuGet Packages Detected!" >> $GITHUB_STEP_SUMMARY
+            cat audit.txt >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "## ✅ No vulnerable NuGet packages found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Secret scanning — verify no secrets in code
+  # ─────────────────────────────────────────────────────────────────────────────
+  secret-scan:
+    name: 🔐 Secret Scan (Gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔐 Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
