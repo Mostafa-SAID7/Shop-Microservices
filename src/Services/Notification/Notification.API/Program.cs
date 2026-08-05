@@ -8,6 +8,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCarter();
 
+// MongoDB Registration for Notification Audit Trail
+var mongoConnString = builder.Configuration["DatabaseSettings:ConnectionString"]
+    ?? builder.Configuration.GetConnectionString("NotificationDb");
+
+if (!string.IsNullOrEmpty(mongoConnString))
+{
+    var mongoUrl = new MongoDB.Driver.MongoUrl(mongoConnString);
+    var mongoClient = new MongoDB.Driver.MongoClient(mongoUrl);
+    var databaseName = mongoUrl.DatabaseName ?? "notificationdb";
+    builder.Services.AddSingleton<MongoDB.Driver.IMongoDatabase>(_ => mongoClient.GetDatabase(databaseName));
+    builder.Services.AddSingleton<Notification.API.Services.INotificationRepository, Notification.API.Services.MongoNotificationRepository>();
+}
+
 // MassTransit RabbitMQ — subscribes to all notification events
 builder.Services.AddMassTransit(config =>
 {
@@ -64,14 +77,29 @@ app.MapGet("/api/notifications/status", () => Results.Ok(new
     Status    = "Running",
     Consumers = new[]
     {
-        "UserRegisteredEventHandler  → Welcome email",
-        "CartCheckoutEventHandler    → Order confirmation email + SMS"
+        "UserRegisteredEventHandler  → Welcome email (Logged to MongoDB)",
+        "CartCheckoutEventHandler    → Order confirmation email + SMS (Logged to MongoDB)"
     },
     Timestamp = DateTime.UtcNow
 }))
 .WithTags("Notification")
 .WithName("NotificationStatus")
 .WithSummary("Notification service status and consumer list");
+
+// Query notification audit logs from MongoDB
+app.MapGet("/api/notifications/logs", async (Notification.API.Services.INotificationRepository? repo) =>
+{
+    if (repo is null)
+    {
+        return Results.Ok(new { Message = "MongoDB storage not configured for notification logs." });
+    }
+
+    var logs = await repo.GetRecentNotificationsAsync();
+    return Results.Ok(logs);
+})
+.WithTags("Notification")
+.WithName("GetNotificationLogs")
+.WithSummary("Get recent notification audit logs from MongoDB");
 
 app.MapCarter();
 

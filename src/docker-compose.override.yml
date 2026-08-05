@@ -216,6 +216,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - DatabaseSettings__ConnectionString=mongodb://mongodb:27017/identitydb
       - JwtSettings__Secret=SuperSecretKeyForShopMicroservicesIdentityApi_2026!
       - JwtSettings__Issuer=ShopMicroservicesIdentityApi
       - JwtSettings__Audience=ShopMicroservicesClients
@@ -223,6 +224,7 @@ services:
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
     depends_on:
+      - mongodb
       - messagebroker
     ports:
       - "6068:8080"
@@ -231,11 +233,22 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - DatabaseSettings__ConnectionString=mongodb://mongodb:27017/notificationdb
       - MessageBroker__Host=amqp://messagebroker:5672
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
     depends_on:
+      - mongodb
       - messagebroker
     ports:
       - "6069:8080"
+
+  mongodb:
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
 

@@ -70,6 +70,9 @@ services:
       context: .
       dockerfile: Services/Payment/Payment.API/Dockerfile
 
+  mongodb:
+    image: mongo:latest
+
   identity.api:
     image: ${DOCKER_REGISTRY-}identityapi
     build:
@@ -86,4 +89,6 @@ volumes:
   postgres_catalog:
   postgres_cart:
   postgres_tracking:
+  mongo_data:
+
 
