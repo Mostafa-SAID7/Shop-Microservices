@@ -1,0 +1,94 @@
+name: 🚀 Release — Tag & Publish
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: read
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_NOLOGO: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Only run on master after CI passes
+  # ─────────────────────────────────────────────────────────────────────────────
+  release:
+    name: 🚀 Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout (full history for changelog)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 🔍 Get Latest Tag
+        id: get_tag
+        run: |
+          LATEST=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "Latest tag: $LATEST"
+
+      - name: 📝 Generate Changelog from Commits
+        id: changelog
+        run: |
+          LATEST="${{ steps.get_tag.outputs.latest }}"
+          echo "## What's Changed" > CHANGELOG_RELEASE.md
+          echo "" >> CHANGELOG_RELEASE.md
+
+          # Features
+          FEATURES=$(git log ${LATEST}..HEAD --oneline --grep="^feat" 2>/dev/null | head -20 || true)
+          if [ -n "$FEATURES" ]; then
+            echo "### ✨ New Features" >> CHANGELOG_RELEASE.md
+            echo "$FEATURES" | while read line; do echo "- $line" >> CHANGELOG_RELEASE.md; done
+            echo "" >> CHANGELOG_RELEASE.md
+          fi
+
+          # Fixes
+          FIXES=$(git log ${LATEST}..HEAD --oneline --grep="^fix" 2>/dev/null | head -20 || true)
+          if [ -n "$FIXES" ]; then
+            echo "### 🐛 Bug Fixes" >> CHANGELOG_RELEASE.md
+            echo "$FIXES" | while read line; do echo "- $line" >> CHANGELOG_RELEASE.md; done
+            echo "" >> CHANGELOG_RELEASE.md
+          fi
+
+          # Tests
+          TESTS=$(git log ${LATEST}..HEAD --oneline --grep="^test" 2>/dev/null | head -20 || true)
+          if [ -n "$TESTS" ]; then
+            echo "### 🧪 Tests" >> CHANGELOG_RELEASE.md
+            echo "$TESTS" | while read line; do echo "- $line" >> CHANGELOG_RELEASE.md; done
+            echo "" >> CHANGELOG_RELEASE.md
+          fi
+
+          # Docs & Chores
+          DOCS=$(git log ${LATEST}..HEAD --oneline --grep="^docs\|^chore\|^refactor" 2>/dev/null | head -10 || true)
+          if [ -n "$DOCS" ]; then
+            echo "### 📚 Docs & Maintenance" >> CHANGELOG_RELEASE.md
+            echo "$DOCS" | while read line; do echo "- $line" >> CHANGELOG_RELEASE.md; done
+          fi
+
+          cat CHANGELOG_RELEASE.md
+
+      - name: 🏷️ Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}-build.${{ github.run_number }}
+          name: "Release build.${{ github.run_number }}"
+          body_path: CHANGELOG_RELEASE.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
