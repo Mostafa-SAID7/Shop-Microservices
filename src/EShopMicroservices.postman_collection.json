@@ -171,9 +171,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{basket_url}}/basket/swn",
+							"raw": "{{cart_url}}/cart/swn",
 							"host": [
-								"{{basket_url}}"
+								"{{cart_url}}"
 							],
 							"path": [
 								"basket",
@@ -198,9 +198,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{basket_url}}/basket",
+							"raw": "{{cart_url}}/cart",
 							"host": [
-								"{{basket_url}}"
+								"{{cart_url}}"
 							],
 							"path": [
 								"basket"
@@ -215,9 +215,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{basket_url}}/basket/swn",
+							"raw": "{{cart_url}}/cart/swn",
 							"host": [
-								"{{basket_url}}"
+								"{{cart_url}}"
 							],
 							"path": [
 								"basket",
@@ -234,7 +234,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\t\"BasketCheckoutDto\": \r\n        {\r\n\t\t  \"userName\": \"swn\",\r\n\t\t  \"CustomerId\": \"189dc8dc-990f-48e0-a37b-e6f2b60b9d7d\",\r\n\t\t  \"totalPrice\": 0,\r\n\t\t  \"firstName\": \"swn\",\r\n\t\t  \"lastName\": \"swn\",\r\n\t\t  \"emailAddress\": \"test@test.com\",\r\n\t\t  \"addressLine\": \"34 Charles Street\",\r\n\t\t  \"country\": \"USA\",\r\n\t\t  \"state\": \"Michigan\",\r\n\t\t  \"zipCode\": \"48198\",\r\n\t\t  \"cardName\": \"swn\",\r\n\t\t  \"cardNumber\": \"485-3184\",\r\n\t\t  \"expiration\": \"11/30\",\r\n\t\t  \"cvv\": \"333\",\r\n\t\t  \"paymentMethod\": 1\r\n\t\t}\r\n}",
+							"raw": "{\r\n\t\"CartCheckoutDto\": \r\n        {\r\n\t\t  \"userName\": \"swn\",\r\n\t\t  \"CustomerId\": \"189dc8dc-990f-48e0-a37b-e6f2b60b9d7d\",\r\n\t\t  \"totalPrice\": 0,\r\n\t\t  \"firstName\": \"swn\",\r\n\t\t  \"lastName\": \"swn\",\r\n\t\t  \"emailAddress\": \"test@test.com\",\r\n\t\t  \"addressLine\": \"34 Charles Street\",\r\n\t\t  \"country\": \"USA\",\r\n\t\t  \"state\": \"Michigan\",\r\n\t\t  \"zipCode\": \"48198\",\r\n\t\t  \"cardName\": \"swn\",\r\n\t\t  \"cardNumber\": \"485-3184\",\r\n\t\t  \"expiration\": \"11/30\",\r\n\t\t  \"cvv\": \"333\",\r\n\t\t  \"paymentMethod\": 1\r\n\t\t}\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -242,9 +242,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{basket_url}}/basket/checkout",
+							"raw": "{{cart_url}}/cart/checkout",
 							"host": [
-								"{{basket_url}}"
+								"{{cart_url}}"
 							],
 							"path": [
 								"basket",
@@ -260,9 +260,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{basket_url}}/health",
+							"raw": "{{cart_url}}/health",
 							"host": [
-								"{{basket_url}}"
+								"{{cart_url}}"
 							],
 							"path": [
 								"health"
@@ -563,12 +563,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{yarp_url}}/basket-service/basket/swn",
+									"raw": "{{yarp_url}}/cart-service/cart/swn",
 									"host": [
 										"{{yarp_url}}"
 									],
 									"path": [
-										"basket-service",
+										"cart-service",
 										"basket",
 										"swn"
 									]
@@ -591,12 +591,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{yarp_url}}/basket-service/basket",
+									"raw": "{{yarp_url}}/cart-service/cart",
 									"host": [
 										"{{yarp_url}}"
 									],
 									"path": [
-										"basket-service",
+										"cart-service",
 										"basket"
 									]
 								}
@@ -609,12 +609,12 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{yarp_url}}/basket-service/basket/swn",
+									"raw": "{{yarp_url}}/cart-service/cart/swn",
 									"host": [
 										"{{yarp_url}}"
 									],
 									"path": [
-										"basket-service",
+										"cart-service",
 										"basket",
 										"swn"
 									]
@@ -629,7 +629,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n\t\"BasketCheckoutDto\": \r\n        {\r\n\t\t  \"userName\": \"swn\",\r\n\t\t  \"CustomerId\": \"189dc8dc-990f-48e0-a37b-e6f2b60b9d7d\",\r\n\t\t  \"totalPrice\": 0,\r\n\t\t  \"firstName\": \"swn\",\r\n\t\t  \"lastName\": \"swn\",\r\n\t\t  \"emailAddress\": \"test@test.com\",\r\n\t\t  \"addressLine\": \"34 Charles Street\",\r\n\t\t  \"country\": \"USA\",\r\n\t\t  \"state\": \"Michigan\",\r\n\t\t  \"zipCode\": \"48198\",\r\n\t\t  \"cardName\": \"swn\",\r\n\t\t  \"cardNumber\": \"485-3184\",\r\n\t\t  \"expiration\": \"11/30\",\r\n\t\t  \"cvv\": \"333\",\r\n\t\t  \"paymentMethod\": 1\r\n\t\t}\r\n}",
+									"raw": "{\r\n\t\"CartCheckoutDto\": \r\n        {\r\n\t\t  \"userName\": \"swn\",\r\n\t\t  \"CustomerId\": \"189dc8dc-990f-48e0-a37b-e6f2b60b9d7d\",\r\n\t\t  \"totalPrice\": 0,\r\n\t\t  \"firstName\": \"swn\",\r\n\t\t  \"lastName\": \"swn\",\r\n\t\t  \"emailAddress\": \"test@test.com\",\r\n\t\t  \"addressLine\": \"34 Charles Street\",\r\n\t\t  \"country\": \"USA\",\r\n\t\t  \"state\": \"Michigan\",\r\n\t\t  \"zipCode\": \"48198\",\r\n\t\t  \"cardName\": \"swn\",\r\n\t\t  \"cardNumber\": \"485-3184\",\r\n\t\t  \"expiration\": \"11/30\",\r\n\t\t  \"cvv\": \"333\",\r\n\t\t  \"paymentMethod\": 1\r\n\t\t}\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -637,12 +637,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{yarp_url}}/basket-service/basket/checkout",
+									"raw": "{{yarp_url}}/cart-service/cart/checkout",
 									"host": [
 										"{{yarp_url}}"
 									],
 									"path": [
-										"basket-service",
+										"cart-service",
 										"basket",
 										"checkout"
 									]

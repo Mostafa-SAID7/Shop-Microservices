@@ -1,24 +1,24 @@
-﻿namespace Basket.API.Basket.StoreBasket;
+namespace Cart.API.Basket.StoreCart;
 
-public record StoreBasketRequest(ShoppingCart Cart);
-public record StoreBasketResponse(string UserName);
+public record StoreCartRequest(ShoppingCart Cart);
+public record StoreCartResponse(string UserName);
 
-public class StoreBasketEndpoints : ICarterModule
+public class StoreCartEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/basket", async (StoreBasketRequest request, ISender sender) =>
+        app.MapPost("/cart", async (StoreCartRequest request, ISender sender) =>
         {
-            var command = request.Adapt<StoreBasketCommand>();
+            var command = request.Adapt<StoreCartCommand>();
 
             var result = await sender.Send(command);
 
-            var response = result.Adapt<StoreBasketResponse>();
+            var response = result.Adapt<StoreCartResponse>();
 
-            return Results.Created($"/basket/{response.UserName}", response);
+            return Results.Created($"/cart/{response.UserName}", response);
         })
         .WithName("CreateProduct")
-        .Produces<StoreBasketResponse>(StatusCodes.Status201Created)
+        .Produces<StoreCartResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .WithSummary("Create Product")
         .WithDescription("Create Product");

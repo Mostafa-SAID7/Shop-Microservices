@@ -1,13 +1,13 @@
 namespace Shopping.Web.Pages
 {
-    public class CartModel(IBasketService basketService, ILogger<CartModel> logger)
+    public class CartModel(ICartService basketService, ILogger<CartModel> logger)
         : PageModel
     {
         public ShoppingCartModel Cart { get; set; } = new ShoppingCartModel();
 
         public async Task<IActionResult> OnGetAsync()
         {
-            Cart = await basketService.LoadUserBasket();
+            Cart = await basketService.LoadUserCart();
 
             return Page();
         }
@@ -15,11 +15,11 @@ namespace Shopping.Web.Pages
         public async Task<IActionResult> OnPostRemoveToCartAsync(Guid productId)
         {
             logger.LogInformation("Remove to cart button clicked");
-            Cart = await basketService.LoadUserBasket();
+            Cart = await basketService.LoadUserCart();
 
             Cart.Items.RemoveAll(x => x.ProductId == productId);
 
-            await basketService.StoreBasket(new StoreBasketRequest(Cart));
+            await basketService.StoreCart(new StoreCartRequest(Cart));
 
             return RedirectToPage();
         }

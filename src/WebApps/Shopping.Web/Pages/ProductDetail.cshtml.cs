@@ -1,7 +1,7 @@
 namespace Shopping.Web.Pages
 {
     public class ProductDetailModel
-        (ICatalogService catalogService, IBasketService basketService, ILogger<ProductDetailModel> logger)
+        (ICatalogService catalogService, ICartService basketService, ILogger<ProductDetailModel> logger)
         : PageModel
     {
         public ProductModel Product { get; set; } = default!;
@@ -25,7 +25,7 @@ namespace Shopping.Web.Pages
             logger.LogInformation("Add to cart button clicked");
             var productResponse = await catalogService.GetProduct(productId);
 
-            var basket = await basketService.LoadUserBasket();
+            var basket = await basketService.LoadUserCart();
 
             basket.Items.Add(new ShoppingCartItemModel
             {
@@ -36,7 +36,7 @@ namespace Shopping.Web.Pages
                 Color = Color
             });
 
-            await basketService.StoreBasket(new StoreBasketRequest(basket));
+            await basketService.StoreCart(new StoreCartRequest(basket));
 
             return RedirectToPage("Cart");
         }

@@ -1,22 +1,22 @@
-﻿using System.Net;
+using System.Net;
 
 namespace Shopping.Web.Services;
 
-public interface IBasketService
+public interface ICartService
 {
-    [Get("/basket-service/basket/{userName}")]
-    Task<GetBasketResponse> GetBasket(string userName);
+    [Get("/cart-service/cart/{userName}")]
+    Task<GetCartResponse> GetCart(string userName);
 
-    [Post("/basket-service/basket")]
-    Task<StoreBasketResponse> StoreBasket(StoreBasketRequest request);
+    [Post("/cart-service/cart")]
+    Task<StoreCartResponse> StoreCart(StoreCartRequest request);
 
-    [Delete("/basket-service/basket/{userName}")]
-    Task<DeleteBasketResponse> DeleteBasket(string userName);
+    [Delete("/cart-service/cart/{userName}")]
+    Task<DeleteCartResponse> DeleteCart(string userName);
 
-    [Post("/basket-service/basket/checkout")]
-    Task<CheckoutBasketResponse> CheckoutBasket(CheckoutBasketRequest request);
+    [Post("/cart-service/cart/checkout")]
+    Task<CheckoutCartResponse> CheckoutCart(CheckoutCartRequest request);
 
-    public async Task<ShoppingCartModel> LoadUserBasket()
+    public async Task<ShoppingCartModel> LoadUserCart()
     {
         // Get Basket If Not Exist Create New Basket with Default Logged In User Name: swn
         var userName = "swn";
@@ -24,7 +24,7 @@ public interface IBasketService
 
         try
         {
-            var getBasketResponse = await GetBasket(userName);
+            var getBasketResponse = await GetCart(userName);
             basket = getBasketResponse.Cart;
         }
         catch (ApiException apiException) when (apiException.StatusCode == HttpStatusCode.NotFound)

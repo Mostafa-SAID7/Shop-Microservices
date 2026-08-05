@@ -1,6 +1,6 @@
-﻿namespace Basket.API.Dtos;
+namespace Cart.API.Dtos;
 
-public class BasketCheckoutDto
+public class CartCheckoutDto
 {
     public string UserName { get; set; } = default!;
     public Guid CustomerId { get; set; } = default!;

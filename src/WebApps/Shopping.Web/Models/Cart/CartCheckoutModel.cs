@@ -1,6 +1,6 @@
-﻿namespace Shopping.Web.Models.Basket;
+namespace Shopping.Web.Models.Cart;
 
-public class BasketCheckoutModel
+public class CartCheckoutModel
 {
     public string UserName { get; set; } = default!;
     public Guid CustomerId { get; set; } = default!;
@@ -24,5 +24,5 @@ public class BasketCheckoutModel
 }
 
 // wrapper classes
-public record CheckoutBasketRequest(BasketCheckoutModel BasketCheckoutDto);
-public record CheckoutBasketResponse(bool IsSuccess);
+public record CheckoutCartRequest(CartCheckoutModel CartCheckoutDto);
+public record CheckoutCartResponse(bool IsSuccess);

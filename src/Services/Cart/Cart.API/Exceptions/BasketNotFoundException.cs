@@ -1,8 +1,8 @@
-﻿namespace Basket.API.Exceptions;
+namespace Cart.API.Exceptions;
 
-public class BasketNotFoundException : NotFoundException
+public class CartNotFoundException : NotFoundException
 {
-    public BasketNotFoundException(string userName) : base("Basket", userName)
+    public CartNotFoundException(string userName) : base("Basket", userName)
     {
         
     }

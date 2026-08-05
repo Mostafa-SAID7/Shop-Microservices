@@ -1,24 +1,24 @@
-﻿namespace Basket.API.Basket.DeleteBasket;
+namespace Cart.API.Basket.DeleteCart;
 
-public record DeleteBasketCommand(string UserName) : ICommand<DeleteBasketResult>;
-public record DeleteBasketResult(bool IsSuccess);
+public record DeleteCartCommand(string UserName) : ICommand<DeleteCartResult>;
+public record DeleteCartResult(bool IsSuccess);
 
-public class DeleteBasketCommandValidator : AbstractValidator<DeleteBasketCommand>
+public class DeleteCartCommandValidator : AbstractValidator<DeleteCartCommand>
 {
-    public DeleteBasketCommandValidator()
+    public DeleteCartCommandValidator()
     {
         RuleFor(x => x.UserName).NotEmpty().WithMessage("UserName is required");
     }
 }
 
-public class DeleteBasketCommandHandler(IBasketRepository repository) 
-    : ICommandHandler<DeleteBasketCommand, DeleteBasketResult>
+public class DeleteCartCommandHandler(ICartRepository repository) 
+    : ICommandHandler<DeleteCartCommand, DeleteCartResult>
 {
-    public async Task<DeleteBasketResult> Handle(DeleteBasketCommand command, CancellationToken cancellationToken)
+    public async Task<DeleteCartResult> Handle(DeleteCartCommand command, CancellationToken cancellationToken)
     {
         // TODO: delete basket from database and cache       
-        await repository.DeleteBasket(command.UserName, cancellationToken);
+        await repository.DeleteCart(command.UserName, cancellationToken);
 
-        return new DeleteBasketResult(true);
+        return new DeleteCartResult(true);
     }
 }

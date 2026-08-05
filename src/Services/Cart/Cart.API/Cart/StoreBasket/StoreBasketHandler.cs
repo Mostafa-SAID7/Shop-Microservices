@@ -1,30 +1,30 @@
-﻿using Discount.Grpc;
+using Discount.Grpc;
 
-namespace Basket.API.Basket.StoreBasket;
+namespace Cart.API.Basket.StoreCart;
 
-public record StoreBasketCommand(ShoppingCart Cart) : ICommand<StoreBasketResult>;
-public record StoreBasketResult(string UserName);
+public record StoreCartCommand(ShoppingCart Cart) : ICommand<StoreCartResult>;
+public record StoreCartResult(string UserName);
 
-public class StoreBasketCommandValidator : AbstractValidator<StoreBasketCommand>
+public class StoreCartCommandValidator : AbstractValidator<StoreCartCommand>
 {
-    public StoreBasketCommandValidator()
+    public StoreCartCommandValidator()
     {
         RuleFor(x => x.Cart).NotNull().WithMessage("Cart can not be null");
         RuleFor(x => x.Cart.UserName).NotEmpty().WithMessage("UserName is required");
     }
 }
 
-public class StoreBasketCommandHandler
-    (IBasketRepository repository, DiscountProtoService.DiscountProtoServiceClient discountProto)
-    : ICommandHandler<StoreBasketCommand, StoreBasketResult>
+public class StoreCartCommandHandler
+    (ICartRepository repository, DiscountProtoService.DiscountProtoServiceClient discountProto)
+    : ICommandHandler<StoreCartCommand, StoreCartResult>
 {
-    public async Task<StoreBasketResult> Handle(StoreBasketCommand command, CancellationToken cancellationToken)
+    public async Task<StoreCartResult> Handle(StoreCartCommand command, CancellationToken cancellationToken)
     {
         await DeductDiscount(command.Cart, cancellationToken);
         
-        await repository.StoreBasket(command.Cart, cancellationToken);
+        await repository.StoreCart(command.Cart, cancellationToken);
 
-        return new StoreBasketResult(command.Cart.UserName);
+        return new StoreCartResult(command.Cart.UserName);
     }
 
     private async Task DeductDiscount(ShoppingCart cart, CancellationToken cancellationToken)

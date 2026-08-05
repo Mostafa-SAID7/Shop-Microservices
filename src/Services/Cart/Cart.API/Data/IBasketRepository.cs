@@ -1,8 +1,8 @@
-﻿namespace Basket.API.Data;
+namespace Cart.API.Data;
 
-public interface IBasketRepository
+public interface ICartRepository
 {
-    Task<ShoppingCart> GetBasket(string userName, CancellationToken cancellationToken = default);
-    Task<ShoppingCart> StoreBasket(ShoppingCart basket, CancellationToken cancellationToken = default);
-    Task<bool> DeleteBasket(string userName, CancellationToken cancellationToken = default);
+    Task<ShoppingCart> GetCart(string userName, CancellationToken cancellationToken = default);
+    Task<ShoppingCart> StoreCart(ShoppingCart basket, CancellationToken cancellationToken = default);
+    Task<bool> DeleteCart(string userName, CancellationToken cancellationToken = default);
 }

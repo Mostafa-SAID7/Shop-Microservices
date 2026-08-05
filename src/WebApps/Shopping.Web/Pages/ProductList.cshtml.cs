@@ -1,7 +1,7 @@
 namespace Shopping.Web.Pages
 {
     public class ProductListModel
-        (ICatalogService catalogService, IBasketService basketService, ILogger<ProductListModel> logger)
+        (ICatalogService catalogService, ICartService basketService, ILogger<ProductListModel> logger)
         : PageModel
     {
         public IEnumerable<string> CategoryList { get; set; } = [];
@@ -34,7 +34,7 @@ namespace Shopping.Web.Pages
             logger.LogInformation("Add to cart button clicked");
             var productResponse = await catalogService.GetProduct(productId);
 
-            var basket = await basketService.LoadUserBasket();
+            var basket = await basketService.LoadUserCart();
 
             basket.Items.Add(new ShoppingCartItemModel
             {
@@ -45,7 +45,7 @@ namespace Shopping.Web.Pages
                 Color = "Black"
             });
 
-            await basketService.StoreBasket(new StoreBasketRequest(basket));
+            await basketService.StoreCart(new StoreCartRequest(basket));
 
             return RedirectToPage("Cart");
         }

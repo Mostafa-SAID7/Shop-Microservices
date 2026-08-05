@@ -1,4 +1,4 @@
-﻿namespace Shopping.Web.Models.Basket;
+namespace Shopping.Web.Models.Cart;
 
 public class ShoppingCartModel
 {
@@ -17,9 +17,9 @@ public class ShoppingCartItemModel
 }
 
 // wrapper classes
-public record GetBasketResponse(ShoppingCartModel Cart);
+public record GetCartResponse(ShoppingCartModel Cart);
 
-public record StoreBasketRequest(ShoppingCartModel Cart);
-public record StoreBasketResponse(string UserName);
+public record StoreCartRequest(ShoppingCartModel Cart);
+public record StoreCartResponse(string UserName);
 
-public record DeleteBasketResponse(bool IsSuccess);
+public record DeleteCartResponse(bool IsSuccess);

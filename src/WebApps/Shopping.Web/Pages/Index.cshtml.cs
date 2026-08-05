@@ -1,6 +1,6 @@
 namespace Shopping.Web.Pages;
 public class IndexModel
-    (ICatalogService catalogService, IBasketService basketService, ILogger<IndexModel> logger)
+    (ICatalogService catalogService, ICartService basketService, ILogger<IndexModel> logger)
     : PageModel
 {    
     public IEnumerable<ProductModel> ProductList { get; set; } = new List<ProductModel>();    
@@ -20,7 +20,7 @@ public class IndexModel
 
         var productResponse = await catalogService.GetProduct(productId);
 
-        var basket = await basketService.LoadUserBasket();
+        var basket = await basketService.LoadUserCart();
 
         basket.Items.Add(new ShoppingCartItemModel
         {
@@ -31,7 +31,7 @@ public class IndexModel
             Color = "Black"
         });
 
-        await basketService.StoreBasket(new StoreBasketRequest(basket));
+        await basketService.StoreCart(new StoreCartRequest(basket));
         
         return RedirectToPage("Cart");
     }    
