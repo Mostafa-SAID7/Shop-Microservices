@@ -7,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 // ── Services ──────────────────────────────────────────────────────────────────
 
 builder.Services.AddCarter();
-builder.Services.AddOpenApi();
 
 // MassTransit RabbitMQ — subscribes to all notification events
 builder.Services.AddMassTransit(config =>
@@ -53,7 +52,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // Swagger / OpenAPI documentation
 }
 
 app.MapHealthChecks("/health");
