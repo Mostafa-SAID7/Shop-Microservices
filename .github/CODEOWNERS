@@ -1,0 +1,34 @@
+# CODEOWNERS
+# Automatically request reviews from owners when a PR touches matching paths.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global default — covers everything not matched below
+*                                   @Mostafa-SAID7
+
+# Microservices
+src/Services/Catalog/               @Mostafa-SAID7
+src/Services/Basket/                @Mostafa-SAID7
+src/Services/Discount/              @Mostafa-SAID7
+src/Services/Ordering/              @Mostafa-SAID7
+src/Services/Tracking/              @Mostafa-SAID7
+src/Services/Payment/               @Mostafa-SAID7
+
+# API Gateway
+src/ApiGateways/                    @Mostafa-SAID7
+
+# Web App
+src/WebApps/                        @Mostafa-SAID7
+
+# Shared libraries
+src/BuildingBlocks/                 @Mostafa-SAID7
+
+# Docker infrastructure
+src/docker-compose.yml              @Mostafa-SAID7
+src/docker-compose.override.yml     @Mostafa-SAID7
+
+# GitHub community files
+.github/                            @Mostafa-SAID7
+
+# Documentation
+docs/                               @Mostafa-SAID7
+README.md                           @Mostafa-SAID7

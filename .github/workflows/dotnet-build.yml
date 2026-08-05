@@ -1,0 +1,55 @@
+name: 🔨 .NET Build
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/dotnet-build.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'src/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore src/eshop-microservices.sln
+
+      - name: 🔨 Build solution
+        run: dotnet build src/eshop-microservices.sln --no-restore --configuration Release
+
+      - name: 🧪 Run tests (if any)
+        run: |
+          if dotnet sln src/eshop-microservices.sln list | grep -qi "test"; then
+            dotnet test src/eshop-microservices.sln --no-build --configuration Release --verbosity normal
+          else
+            echo "No test projects found — skipping."
+          fi
+
+      - name: ✅ Build summary
+        if: success()
+        run: |
+          echo "### ✅ Build Succeeded" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Solution | eshop-microservices.sln |" >> $GITHUB_STEP_SUMMARY
+          echo "| .NET | 8.0.x |" >> $GITHUB_STEP_SUMMARY
+          echo "| Configuration | Release |" >> $GITHUB_STEP_SUMMARY
+          echo "| Runner | ubuntu-latest |" >> $GITHUB_STEP_SUMMARY

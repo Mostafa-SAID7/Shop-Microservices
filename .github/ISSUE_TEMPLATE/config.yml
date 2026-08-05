@@ -1,0 +1,12 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/Mostafa-SAID7/Shop-Microservices/tree/main/docs
+    about: Read the full project documentation before opening an issue.
+  - name: 💬 Discussions
+    url: https://github.com/Mostafa-SAID7/Shop-Microservices/discussions
+    about: Ask questions or share ideas in GitHub Discussions.
+  - name: 🎓 Udemy Course
+    url: https://www.udemy.com/course/microservices-architecture-and-implementation-on-dotnet/
+    about: Follow the step-by-step course that accompanies this repository.
