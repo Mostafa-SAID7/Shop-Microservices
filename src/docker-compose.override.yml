@@ -211,3 +211,31 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  identity.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - JwtSettings__Secret=SuperSecretKeyForShopMicroservicesIdentityApi_2026!
+      - JwtSettings__Issuer=ShopMicroservicesIdentityApi
+      - JwtSettings__Audience=ShopMicroservicesClients
+      - MessageBroker__Host=amqp://messagebroker:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
+    depends_on:
+      - messagebroker
+    ports:
+      - "6068:8080"
+
+  notification.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - MessageBroker__Host=amqp://messagebroker:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
+    depends_on:
+      - messagebroker
+    ports:
+      - "6069:8080"
+

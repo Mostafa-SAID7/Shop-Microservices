@@ -26,7 +26,7 @@ services:
     image: ${DOCKER_REGISTRY-}cartapi
     build:
       context: .
-      dockerfile: Services/Basket/Cart.API/Dockerfile
+      dockerfile: Services/Cart/Cart.API/Dockerfile
 
   discount.grpc:
     image: ${DOCKER_REGISTRY-}discountgrpc
@@ -70,13 +70,20 @@ services:
       context: .
       dockerfile: Services/Payment/Payment.API/Dockerfile
 
+  identity.api:
+    image: ${DOCKER_REGISTRY-}identityapi
+    build:
+      context: .
+      dockerfile: Services/Identity/Identity.API/Dockerfile
+
+  notification.api:
+    image: ${DOCKER_REGISTRY-}notificationapi
+    build:
+      context: .
+      dockerfile: Services/Notification/Notification.API/Dockerfile
+
 volumes:
   postgres_catalog:
   postgres_cart:
   postgres_tracking:
-
-
-
-
-
 
