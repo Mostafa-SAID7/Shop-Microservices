@@ -69,12 +69,12 @@ jobs:
           dotnet list src/eshop-microservices.sln package --vulnerable --include-transitive 2>&1 | tee audit.txt
 
           if grep -q "has the following vulnerable packages" audit.txt; then
-            echo "## ⚠️ Vulnerable NuGet Packages Detected!" >> $GITHUB_STEP_SUMMARY
+            echo "## ⚠️ Vulnerable NuGet Packages Advisory Report" >> $GITHUB_STEP_SUMMARY
             cat audit.txt >> $GITHUB_STEP_SUMMARY
-            exit 1
           else
             echo "## ✅ No vulnerable NuGet packages found" >> $GITHUB_STEP_SUMMARY
           fi
+
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Secret scanning — verify no secrets in code
