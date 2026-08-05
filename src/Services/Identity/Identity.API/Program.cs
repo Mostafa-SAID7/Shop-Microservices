@@ -10,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // ── Services ──────────────────────────────────────────────────────────────────
 
 builder.Services.AddCarter();
-builder.Services.AddOpenApi();
 
 // Identity services
 builder.Services.AddSingleton<ITokenService, TokenService>();
@@ -65,7 +64,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // Swagger / OpenAPI documentation
 }
 
 app.UseAuthentication();
