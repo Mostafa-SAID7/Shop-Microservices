@@ -1,6 +1,20 @@
 # Cart Service — Feature Changelog
 
-## Feature: Cart Rename from Basket
+## v1.3.0 — Unit & Integration Tests Added
+
+### Testing Structure
+- Unit tests: `tests/Services/Cart/Cart.API.Tests/Unit/`
+  - `CartModelTests.cs` — 2 tests (ShoppingCart TotalPrice calculation, empty cart)
+- Integration tests: `tests/Services/Cart/Cart.API.Tests/Integration/`
+  - `CartEndpointsContractTests.cs` — 5 HTTP endpoint contract specification tests
+
+### CI/CD
+- Cart unit and integration tests included in `ci.yml` GitHub Actions workflow.
+- Tests run without requiring PostgreSQL, Redis, or gRPC connection.
+
+---
+
+## v1.0.0 — Feature: Cart Rename from Basket
 
 ### Summary
 Complete systemic refactoring of the Basket microservice → Cart microservice.
