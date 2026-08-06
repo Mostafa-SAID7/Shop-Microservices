@@ -117,6 +117,10 @@ public class CartCheckoutEventHandler(
 
         logger.LogInformation("✅ [ORDER CONFIRMATION] Dispatched to {Email}", evt.EmailAddress);
 
+        var smsMessage = $"Hi {evt.FirstName}, your order for {evt.TotalPrice:C} has been placed!";
+        await SimulateSmsAsync(evt.UserName, smsMessage);
+        logger.LogInformation("📱 [SMS] Dispatched order SMS for customer {UserName}", evt.UserName);
+
         // Persist email + SMS logs — idempotent upserts on EventId+Channel.
         // try/catch prevents DB failures from re-triggering delivery on MassTransit retry.
         if (repo is not null)
@@ -147,7 +151,7 @@ public class CartCheckoutEventHandler(
                     Recipient = evt.UserName,
                     Channel   = "SMS",
                     Subject   = "Order Confirmation SMS",
-                    Message   = $"Hi {evt.FirstName}, your order for {evt.TotalPrice:C} has been placed!",
+                    Message   = smsMessage,
                     Status    = "Sent",
                     Metadata  = new Dictionary<string, string>
                     {
@@ -164,11 +168,14 @@ public class CartCheckoutEventHandler(
                 logger.LogWarning(ex, "⚠️ Transient exception persisting notification log for event {EventId}", evt.Id);
             }
         }
-
-        logger.LogInformation("📱 [SMS] Dispatched order SMS for customer {UserName}", evt.UserName);
     }
 
     private static async Task SimulateEmailAsync(string to, string subject, string body)
+    {
+        await Task.Delay(50);
+    }
+
+    private static async Task SimulateSmsAsync(string recipient, string message)
     {
         await Task.Delay(50);
     }
