@@ -1,5 +1,14 @@
 # Notification Service — Feature Changelog
 
+## v1.4.1 — Idempotent Notification Processing & Poison Message Guard
+
+### Fixes & Improvements
+- **Idempotent Audit Persistence**: `NotificationLog` now contains `EventId` (sourced from `IntegrationEvent.Id`). `MongoNotificationRepository` enforces a unique compound index on `(eventId, channel)` and performs an idempotent upsert (`ReplaceOneAsync` with `IsUpsert = true`).
+- **Resilience**: Consumer event handlers wrap log persistence in `try/catch`. Database logging failures no longer throw inside `Consume()`, preventing duplicate email/SMS re-sends on MassTransit retry.
+- **Poison Message Prevention**: Safe extraction of credit card last 4 digits (`(evt.CardNumber is { Length: >= 4 } c ? c[^4..] : "****")`) prevents `ArgumentOutOfRangeException` / `NullReferenceException` on short/null card numbers.
+
+---
+
 ## v1.4.0 — MongoDB Audit Trail Integration
 
 ### New: MongoDB Notification Log Persistence
