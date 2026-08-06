@@ -59,10 +59,14 @@ public class UserRegisteredEventHandler(
                     }
                 });
             }
-            catch (Exception ex)
+            catch (MongoDB.Driver.MongoException ex)
             {
-                // Log but do not rethrow — audit failure must not duplicate the notification.
-                logger.LogWarning(ex, "⚠️ Failed to persist notification log for event {EventId}", evt.Id);
+                // Log but do not rethrow — database audit failure must not duplicate the notification.
+                logger.LogWarning(ex, "⚠️ MongoDB failure persisting notification log for event {EventId}", evt.Id);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or TimeoutException)
+            {
+                logger.LogWarning(ex, "⚠️ Transient exception persisting notification log for event {EventId}", evt.Id);
             }
         }
 
@@ -151,9 +155,13 @@ public class CartCheckoutEventHandler(
                     }
                 });
             }
-            catch (Exception ex)
+            catch (MongoDB.Driver.MongoException ex)
             {
-                logger.LogWarning(ex, "⚠️ Failed to persist notification log for event {EventId}", evt.Id);
+                logger.LogWarning(ex, "⚠️ MongoDB failure persisting notification log for event {EventId}", evt.Id);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or TimeoutException)
+            {
+                logger.LogWarning(ex, "⚠️ Transient exception persisting notification log for event {EventId}", evt.Id);
             }
         }
 
