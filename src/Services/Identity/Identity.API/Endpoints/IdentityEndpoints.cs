@@ -95,6 +95,9 @@ public class IdentityEndpoints : ICarterModule
         if (await userStore.EmailExistsAsync(request.Email))
             return Results.Conflict(new { Error = "A user with this email already exists." });
 
+        if (await userStore.UserNameExistsAsync(request.UserName))
+            return Results.Conflict(new { Error = "A user with this username already exists." });
+
         var newUser = new User
         {
             UserName     = request.UserName,
@@ -105,7 +108,14 @@ public class IdentityEndpoints : ICarterModule
             Role         = "Customer"
         };
 
-        await userStore.AddAsync(newUser);
+        try
+        {
+            await userStore.AddAsync(newUser);
+        }
+        catch (MongoDB.Driver.MongoWriteException ex) when (ex.WriteError?.Category == MongoDB.Driver.ServerErrorCategory.DuplicateKey)
+        {
+            return Results.Conflict(new { Error = "A user with this email or username already exists." });
+        }
 
         // Publish integration event → Notification.API sends welcome email
         await publishEndpoint.Publish(new UserRegisteredEvent

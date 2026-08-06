@@ -14,6 +14,7 @@ public interface IUserStore
     Task AddAsync(User user);
     Task UpdateAsync(User user);
     Task<bool> EmailExistsAsync(string email);
+    Task<bool> UserNameExistsAsync(string userName);
 }
 
 public class InMemoryUserStore : IUserStore
@@ -71,6 +72,13 @@ public class InMemoryUserStore : IUserStore
     {
         await _lock.WaitAsync();
         try { return _users.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)); }
+        finally { _lock.Release(); }
+    }
+
+    public async Task<bool> UserNameExistsAsync(string userName)
+    {
+        await _lock.WaitAsync();
+        try { return _users.Any(u => u.UserName.Equals(userName, StringComparison.OrdinalIgnoreCase)); }
         finally { _lock.Release(); }
     }
 }

@@ -99,6 +99,13 @@ public class MongoUserStore : IUserStore
             .AnyAsync();
     }
 
+    public async Task<bool> UserNameExistsAsync(string userName)
+    {
+        return await _users
+            .Find(Builders<MongoUserDocument>.Filter.Eq(u => u.UserName, userName))
+            .AnyAsync();
+    }
+
     // ── Internal document model stored in MongoDB ─────────────────────────────
 
     private sealed class MongoUserDocument
