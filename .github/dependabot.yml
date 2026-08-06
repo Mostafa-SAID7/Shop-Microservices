@@ -1,0 +1,66 @@
+version: 2
+
+updates:
+  # ── NuGet packages — all microservices in src/ ──────────────────────────────
+  - package-ecosystem: nuget
+    directory: "/src"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: "UTC"
+    target-branch: develop
+    open-pull-requests-limit: 10
+    reviewers:
+      - Mostafa-SAID7
+    labels:
+      - dependencies
+      - nuget
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    ignore:
+      # Ignore patch-level bumps for stable, well-tested packages to reduce noise
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: [ "version-update:semver-patch" ]
+      - dependency-name: "System.*"
+        update-types: [ "version-update:semver-patch" ]
+
+  # ── NuGet packages — tests/ ──────────────────────────────────────────────────
+  - package-ecosystem: nuget
+    directory: "/tests"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: "UTC"
+    target-branch: develop
+    open-pull-requests-limit: 5
+    reviewers:
+      - Mostafa-SAID7
+    labels:
+      - dependencies
+      - nuget
+      - tests
+    commit-message:
+      prefix: "chore(test-deps)"
+      include: scope
+
+  # ── GitHub Actions ────────────────────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: "UTC"
+    target-branch: develop
+    open-pull-requests-limit: 5
+    reviewers:
+      - Mostafa-SAID7
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: "ci(deps)"
+      include: scope

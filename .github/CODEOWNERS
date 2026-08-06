@@ -5,13 +5,24 @@
 # Global default — covers everything not matched below
 *                                   @Mostafa-SAID7
 
-# Microservices
+# Microservices — broad ownership
 src/Services/Catalog/               @Mostafa-SAID7
 src/Services/Basket/                @Mostafa-SAID7
 src/Services/Discount/              @Mostafa-SAID7
 src/Services/Ordering/              @Mostafa-SAID7
 src/Services/Tracking/              @Mostafa-SAID7
 src/Services/Payment/               @Mostafa-SAID7
+
+# Identity & auth — security-sensitive; owner review required on every change
+src/Services/Identity/              @Mostafa-SAID7
+tests/Services/Identity/            @Mostafa-SAID7
+
+# Notification — event-handler audit trail; owner review required on every change
+src/Services/Notification/          @Mostafa-SAID7
+tests/Services/Notification/        @Mostafa-SAID7
+
+# Cart tests
+tests/Services/Cart/                @Mostafa-SAID7
 
 # API Gateway
 src/ApiGateways/                    @Mostafa-SAID7
@@ -26,7 +37,8 @@ src/BuildingBlocks/                 @Mostafa-SAID7
 src/docker-compose.yml              @Mostafa-SAID7
 src/docker-compose.override.yml     @Mostafa-SAID7
 
-# GitHub community files
+# Style & governance — any change here triggers owner review
+.editorconfig                       @Mostafa-SAID7
 .github/                            @Mostafa-SAID7
 
 # Documentation

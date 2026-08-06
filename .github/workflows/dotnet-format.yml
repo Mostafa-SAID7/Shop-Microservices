@@ -1,0 +1,68 @@
+name: 🎨 Format Check
+
+on:
+  pull_request:
+    branches: [ master, develop ]
+    paths:
+      - 'src/**/*.cs'
+      - 'tests/**/*.cs'
+      - '.editorconfig'
+      - '.github/workflows/dotnet-format.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  format:
+    name: 🎨 dotnet-format Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: 💾 Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: 📦 Restore
+        run: dotnet restore src/eshop-microservices.sln
+
+      - name: 🎨 Run dotnet-format (verify only)
+        id: fmt
+        run: |
+          dotnet format src/eshop-microservices.sln \
+            --verify-no-changes \
+            --severity warn \
+            --exclude "**/obj/**" \
+            --exclude "**/bin/**" \
+            2>&1 | tee fmt-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: 📋 Format Summary
+        if: always()
+        run: |
+          echo "### 🎨 dotnet-format Results" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.fmt.outputs.exit_code }}" = "0" ]; then
+            echo "✅ All files conform to .editorconfig style rules." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Format violations detected. Run \`dotnet format src/eshop-microservices.sln\` locally and push again." >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat fmt-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: ❌ Fail on format violations
+        if: steps.fmt.outputs.exit_code != '0'
+        run: |
+          echo "::error::Code style violations found. Run 'dotnet format src/eshop-microservices.sln' locally and push again."
+          exit 1

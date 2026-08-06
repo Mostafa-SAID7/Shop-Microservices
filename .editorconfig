@@ -1,0 +1,80 @@
+# EditorConfig — https://editorconfig.org
+# Root config; stop searching up the directory tree.
+root = true
+
+# ─── All files ───────────────────────────────────────────────────────────────
+[*]
+indent_style             = space
+indent_size              = 4
+end_of_line              = crlf
+charset                  = utf-8
+trim_trailing_whitespace = true
+insert_final_newline     = true
+
+# ─── C# source ───────────────────────────────────────────────────────────────
+[*.cs]
+# Indentation & spacing
+csharp_indent_case_contents                               = true
+csharp_indent_switch_labels                               = true
+csharp_space_after_cast                                   = false
+csharp_space_after_keywords_in_control_flow_statements    = true
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_method_call_parameter_list_parentheses        = false
+
+# Newlines
+csharp_new_line_before_open_brace                         = all
+csharp_new_line_before_else                               = true
+csharp_new_line_before_catch                              = true
+csharp_new_line_before_finally                            = true
+csharp_new_line_before_members_in_object_initializers    = true
+csharp_new_line_before_members_in_anonymous_types         = true
+
+# Expression bodies — prefer compact for simple members
+csharp_style_expression_bodied_methods                    = false : suggestion
+csharp_style_expression_bodied_properties                 = true  : suggestion
+csharp_style_expression_bodied_constructors               = false : silent
+
+# var preferences
+csharp_style_var_for_built_in_types                       = false : suggestion
+csharp_style_var_when_type_is_apparent                    = true  : suggestion
+csharp_style_var_elsewhere                                = false : suggestion
+
+# Modifier order
+csharp_preferred_modifier_order                           = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async : suggestion
+
+# Null checks
+csharp_style_prefer_null_check_over_type_check            = true  : suggestion
+dotnet_style_null_propagation                             = true  : suggestion
+dotnet_style_coalesce_expression                          = true  : suggestion
+
+# Naming
+dotnet_naming_rule.private_fields_underscore.symbols     = private_fields
+dotnet_naming_rule.private_fields_underscore.style       = underscore_prefix
+dotnet_naming_rule.private_fields_underscore.severity    = suggestion
+dotnet_naming_symbols.private_fields.applicable_kinds    = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_prefix.capitalization     = camel_case
+dotnet_naming_style.underscore_prefix.required_prefix    = _
+
+# Unnecessary usings
+dotnet_diagnostic.IDE0005.severity                        = warning
+
+# Suppressed diagnostics (generated code, etc.)
+generated_code = false
+
+# ─── Project files ───────────────────────────────────────────────────────────
+[*.{csproj,props,targets}]
+indent_size = 2
+
+# ─── YAML / GitHub Actions ───────────────────────────────────────────────────
+[*.{yml,yaml}]
+indent_size              = 2
+end_of_line              = lf
+
+# ─── JSON ────────────────────────────────────────────────────────────────────
+[*.json]
+indent_size = 2
+
+# ─── Markdown ────────────────────────────────────────────────────────────────
+[*.md]
+trim_trailing_whitespace = false
