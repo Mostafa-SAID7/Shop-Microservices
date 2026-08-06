@@ -112,7 +112,7 @@ public class IdentityEndpoints : ICarterModule
         {
             await userStore.AddAsync(newUser);
         }
-        catch (MongoDB.Driver.MongoWriteException ex) when (ex.WriteError?.Category == MongoDB.Driver.ServerErrorCategory.DuplicateKey)
+        catch (Exception ex) when (ex is UserAlreadyExistsException || (ex is MongoDB.Driver.MongoWriteException mwe && (mwe.WriteError?.Category == MongoDB.Driver.ServerErrorCategory.DuplicateKey || mwe.WriteError?.Code == 11000)))
         {
             return Results.Conflict(new { Error = "A user with this email or username already exists." });
         }
@@ -191,7 +191,14 @@ public class IdentityEndpoints : ICarterModule
         if (request.LastName  is not null) user.LastName  = request.LastName;
         if (request.UserName  is not null) user.UserName  = request.UserName;
 
-        await userStore.UpdateAsync(user);
+        try
+        {
+            await userStore.UpdateAsync(user);
+        }
+        catch (Exception ex) when (ex is UserAlreadyExistsException || (ex is MongoDB.Driver.MongoWriteException mwe && (mwe.WriteError?.Category == MongoDB.Driver.ServerErrorCategory.DuplicateKey || mwe.WriteError?.Code == 11000)))
+        {
+            return Results.Conflict(new { Error = "A user with this username already exists." });
+        }
         logger.LogInformation("✏️ Profile updated for user: {Id}", id);
 
         return Results.Ok(ToProfileDto(user));

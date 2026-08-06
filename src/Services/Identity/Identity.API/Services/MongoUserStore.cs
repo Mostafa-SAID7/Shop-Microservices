@@ -4,6 +4,11 @@ using MongoDB.Driver;
 
 namespace Identity.API.Services;
 
+public class UserAlreadyExistsException : Exception
+{
+    public UserAlreadyExistsException(string message, Exception innerException) : base(message, innerException) { }
+}
+
 /// <summary>
 /// Production MongoDB implementation of IUserStore.
 /// Persists identity users into MongoDB: database = "identitydb", collection = "Users".
@@ -74,7 +79,15 @@ public class MongoUserStore : IUserStore
             LastLoginAt = user.LastLoginAt,
             UpdatedAt   = DateTime.UtcNow
         };
-        await _users.InsertOneAsync(doc);
+
+        try
+        {
+            await _users.InsertOneAsync(doc);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey || ex.WriteError?.Code == 11000)
+        {
+            throw new UserAlreadyExistsException("A user with this email or username already exists.", ex);
+        }
     }
 
     public async Task UpdateAsync(User user)
@@ -89,7 +102,15 @@ public class MongoUserStore : IUserStore
             .Set(u => u.IsActive,     user.IsActive)
             .Set(u => u.LastLoginAt,  user.LastLoginAt)
             .Set(u => u.UpdatedAt,    DateTime.UtcNow);
-        await _users.UpdateOneAsync(filter, update);
+
+        try
+        {
+            await _users.UpdateOneAsync(filter, update);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey || ex.WriteError?.Code == 11000)
+        {
+            throw new UserAlreadyExistsException("A user with this email or username already exists.", ex);
+        }
     }
 
     public async Task<bool> EmailExistsAsync(string email)
