@@ -87,8 +87,9 @@ app.MapGet("/api/notifications/status", () => Results.Ok(new
 .WithSummary("Notification service status and consumer list");
 
 // Query notification audit logs from MongoDB
-app.MapGet("/api/notifications/logs", async (Notification.API.Services.INotificationRepository? repo) =>
+app.MapGet("/api/notifications/logs", async (IServiceProvider sp) =>
 {
+    var repo = sp.GetService<Notification.API.Services.INotificationRepository>();
     if (repo is null)
     {
         return Results.Ok(new { Message = "MongoDB storage not configured for notification logs." });
