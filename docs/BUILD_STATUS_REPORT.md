@@ -1,4 +1,4 @@
-﻿# 📋 Build Status Report - Shop Microservices
+# 📋 Build Status Report - Shop Microservices
 
 **Generated:** August 5, 2026 | **Status:** ✅ SUCCESS
 
@@ -182,7 +182,7 @@ Ordering API:     http://localhost:6063
 | Database | Type | Port | Credentials |
 |----------|------|------|-------------|
 | catalogdb | PostgreSQL | 5432 | postgres/postgres |
-| basketdb | PostgreSQL | 5433 | postgres/postgres |
+| cartdb | PostgreSQL | 5433 | postgres/postgres |
 | trackingdb | PostgreSQL | 5434 | postgres/postgres |
 | orderdb | SQL Server | 1433 | sa/SwN12345678 |
 | paymentdb | SQL Server | 1434 | sa/SwN12345678 |

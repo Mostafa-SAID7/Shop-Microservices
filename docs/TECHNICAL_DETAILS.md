@@ -1,4 +1,4 @@
-﻿# 🔬 Technical Deep Dive - Shop Microservices Architecture
+# 🔬 Technical Deep Dive - Shop Microservices Architecture
 
 ---
 
@@ -125,7 +125,7 @@ await publishEndpoint.Publish(basketCheckoutEvent);
 ### Database Connections
 ```
 PostgreSQL:
-Server=basketdb;Port=5432;Database=BasketDb;User Id=postgres;Password=postgres
+Server=cartdb;Port=5432;Database=CartDb;User Id=postgres;Password=postgres
 
 Redis:
 Host: distributedcache:6379 (no password required)

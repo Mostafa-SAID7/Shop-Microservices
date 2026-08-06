@@ -1,4 +1,4 @@
-﻿# 🚀 Quick Start Guide - Shop Microservices
+# 🚀 Quick Start Guide - Shop Microservices
 
 **Status:** ✅ Solution built successfully with no errors (12 warnings - non-critical)  
 **Framework:** .NET 8.0  
@@ -66,8 +66,9 @@ docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d
 # Expected output:
 # Creating network "src_default" with the default driver
 # Creating catalogdb ... done
-# Creating basketdb ... done
+# Creating cartdb ... done
 # Creating orderdb ... done
+# Creating mongodb ... done
 # Creating messagebroker ... done
 # ... etc
 ```
@@ -92,10 +93,10 @@ docker-compose logs catalog.api
 # List all running containers
 docker ps
 
-# Should see 8 running services:
-# - catalogdb, basketdb, distributedcache, orderdb, messagebroker
-# - catalog.api, basket.api, discount.grpc, ordering.api, yarpapigateway, shopping.web
-# - trackingdb, paymentdb, tracking.api, payment.api
+# Should see running services:
+# - catalogdb, cartdb, distributedcache, orderdb, messagebroker, mongodb
+# - catalog.api, cart.api, discount.grpc, ordering.api, yarpapigateway, shopping.web
+# - trackingdb, paymentdb, tracking.api, payment.api, identity.api, notification.api
 ```
 
 ### Step 5: Access Applications
@@ -126,7 +127,7 @@ docker ps
 cd "Shop-Microservices\src"
 
 # Start only databases and message broker
-docker-compose up -d catalogdb basketdb distributedcache orderdb messagebroker
+docker-compose up -d catalogdb cartdb distributedcache orderdb messagebroker mongodb
 
 # Wait 30 seconds for databases to initialize
 ```
