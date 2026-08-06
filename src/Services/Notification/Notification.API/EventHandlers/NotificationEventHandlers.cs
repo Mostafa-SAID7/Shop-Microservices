@@ -118,8 +118,18 @@ public class CartCheckoutEventHandler(
         logger.LogInformation("✅ [ORDER CONFIRMATION] Dispatched to {Email}", evt.EmailAddress);
 
         var smsMessage = $"Hi {evt.FirstName}, your order for {evt.TotalPrice:C} has been placed!";
-        await SimulateSmsAsync(evt.UserName, smsMessage);
-        logger.LogInformation("📱 [SMS] Dispatched order SMS for customer {UserName}", evt.UserName);
+        var smsStatus = "Queued";
+
+        try
+        {
+            await SimulateSmsAsync(evt.UserName, smsMessage);
+            smsStatus = "Sent";
+            logger.LogInformation("📱 [SMS] Dispatched order SMS for customer {UserName}", evt.UserName);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "⚠️ SMS dispatch failed for customer {UserName}, saving audit log as Queued", evt.UserName);
+        }
 
         // Persist email + SMS logs — idempotent upserts on EventId+Channel.
         // try/catch prevents DB failures from re-triggering delivery on MassTransit retry.
@@ -152,7 +162,7 @@ public class CartCheckoutEventHandler(
                     Channel   = "SMS",
                     Subject   = "Order Confirmation SMS",
                     Message   = smsMessage,
-                    Status    = "Sent",
+                    Status    = smsStatus,
                     Metadata  = new Dictionary<string, string>
                     {
                         { "AddressLine", evt.AddressLine }
