@@ -1,11 +1,15 @@
 using BuildingBlocks.Messaging.Events;
 using MassTransit;
+using Notification.API.Models;
+using Notification.API.Services;
 
 namespace Notification.API.EventHandlers;
 
-// ── User Registered → Welcome Email ──────────────────────────────────────────
+// ── User Registered → Welcome Email + MongoDB Log ─────────────────────────────
 
-public class UserRegisteredEventHandler(ILogger<UserRegisteredEventHandler> logger)
+public class UserRegisteredEventHandler(
+    ILogger<UserRegisteredEventHandler> logger,
+    INotificationRepository? repo = null)
     : IConsumer<UserRegisteredEvent>
 {
     public async Task Consume(ConsumeContext<UserRegisteredEvent> context)
@@ -16,35 +20,66 @@ public class UserRegisteredEventHandler(ILogger<UserRegisteredEventHandler> logg
             "📧 [WELCOME EMAIL] Sending to {Email} — Welcome, {FirstName} {LastName}! (UserId: {UserId})",
             evt.Email, evt.FirstName, evt.LastName, evt.UserId);
 
-        // Simulate async email dispatch
-        await SimulateEmailAsync(
-            to:      evt.Email,
-            subject: $"Welcome to ShopMicroservices, {evt.FirstName}!",
-            body:    $"""
-                      Hi {evt.FirstName} {evt.LastName},
+        var subject = $"Welcome to ShopMicroservices, {evt.FirstName}!";
+        var body = $"""
+                    Hi {evt.FirstName} {evt.LastName},
 
-                      Your account has been created successfully.
-                      User ID : {evt.UserId}
+                    Your account has been created successfully.
+                    User ID : {evt.UserId}
 
-                      Start shopping now at https://shop.example.com
+                    Start shopping now at https://shop.example.com
 
-                      Regards,
-                      The Shop Team
-                      """);
+                    Regards,
+                    The Shop Team
+                    """;
 
-        logger.LogInformation("✅ [WELCOME EMAIL] Successfully dispatched to {Email}", evt.Email);
+        await SimulateEmailAsync(evt.Email, subject, body);
+
+        // Persist notification log to MongoDB — idempotent upsert on EventId+Channel.
+        // Wrapped in try/catch: a DB failure must NOT cause the handler to throw,
+        // because that would trigger MassTransit retry and re-send the welcome email.
+        if (repo is not null)
+        {
+            try
+            {
+                await repo.LogNotificationAsync(new NotificationLog
+                {
+                    EventId   = evt.Id,
+                    EventType = "UserRegistered",
+                    Recipient = evt.Email,
+                    Channel   = "Email",
+                    Subject   = subject,
+                    Message   = body,
+                    Status    = "Sent",
+                    Metadata  = new Dictionary<string, string>
+                    {
+                        { "UserId",     evt.UserId },
+                        { "FirstName",  evt.FirstName },
+                        { "LastName",   evt.LastName }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log but do not rethrow — audit failure must not duplicate the notification.
+                logger.LogWarning(ex, "⚠️ Failed to persist notification log for event {EventId}", evt.Id);
+            }
+        }
+
+        logger.LogInformation("✅ [WELCOME EMAIL] Successfully dispatched and logged for {Email}", evt.Email);
     }
 
     private static async Task SimulateEmailAsync(string to, string subject, string body)
     {
-        // Replace with real SMTP / SendGrid / Mailgun integration
         await Task.Delay(50);
     }
 }
 
-// ── Cart Checkout → Order Confirmation Email ──────────────────────────────────
+// ── Cart Checkout → Order Confirmation Email + SMS + MongoDB Log ──────────────
 
-public class CartCheckoutEventHandler(ILogger<CartCheckoutEventHandler> logger)
+public class CartCheckoutEventHandler(
+    ILogger<CartCheckoutEventHandler> logger,
+    INotificationRepository? repo = null)
     : IConsumer<CartCheckoutEvent>
 {
     public async Task Consume(ConsumeContext<CartCheckoutEvent> context)
@@ -55,54 +90,78 @@ public class CartCheckoutEventHandler(ILogger<CartCheckoutEventHandler> logger)
             "🛒 [ORDER CONFIRMATION] Sending to {Email} — Order for {UserName}, Total: {Total:C}",
             evt.EmailAddress, evt.UserName, evt.TotalPrice);
 
-        await SimulateEmailAsync(
-            to:      evt.EmailAddress,
-            subject: "Order Confirmation — ShopMicroservices",
-            body:    $"""
-                      Hi {evt.FirstName} {evt.LastName},
+        var subject = "Order Confirmation — ShopMicroservices";
+        var body = $"""
+                    Hi {evt.FirstName} {evt.LastName},
 
-                      Thank you for your order!
+                    Thank you for your order!
 
-                      Order Summary
-                      ─────────────────────────────
-                      Customer  : {evt.UserName}
-                      Total     : {evt.TotalPrice:C}
-                      Ship to   : {evt.AddressLine}, {evt.State} {evt.ZipCode}, {evt.Country}
-                      Payment   : **** **** **** {evt.CardNumber[^4..]}
+                    Order Summary
+                    ─────────────────────────────
+                    Customer  : {evt.UserName}
+                    Total     : {evt.TotalPrice:C}
+                    Ship to   : {evt.AddressLine}, {evt.State} {evt.ZipCode}, {evt.Country}
+                    Payment   : **** **** **** {(evt.CardNumber is { Length: >= 4 } c ? c[^4..] : "****")}
 
-                      We'll notify you once your order ships.
+                    We'll notify you once your order ships.
 
-                      Regards,
-                      The Shop Team
-                      """);
+                    Regards,
+                    The Shop Team
+                    """;
+
+        await SimulateEmailAsync(evt.EmailAddress, subject, body);
 
         logger.LogInformation("✅ [ORDER CONFIRMATION] Dispatched to {Email}", evt.EmailAddress);
 
-        // Publish SMS notification simulation
-        logger.LogInformation(
-            "📱 [SMS] Sending order SMS to customer {UserName} at {AddressLine}",
-            evt.UserName, evt.AddressLine);
+        // Persist email + SMS logs — idempotent upserts on EventId+Channel.
+        // try/catch prevents DB failures from re-triggering delivery on MassTransit retry.
+        if (repo is not null)
+        {
+            try
+            {
+                await repo.LogNotificationAsync(new NotificationLog
+                {
+                    EventId   = evt.Id,
+                    EventType = "CartCheckout",
+                    Recipient = evt.EmailAddress,
+                    Channel   = "Email",
+                    Subject   = subject,
+                    Message   = body,
+                    Status    = "Sent",
+                    Metadata  = new Dictionary<string, string>
+                    {
+                        { "UserName",   evt.UserName },
+                        { "TotalPrice", evt.TotalPrice.ToString("F2") },
+                        { "Country",    evt.Country }
+                    }
+                });
+
+                await repo.LogNotificationAsync(new NotificationLog
+                {
+                    EventId   = evt.Id,
+                    EventType = "CartCheckout",
+                    Recipient = evt.UserName,
+                    Channel   = "SMS",
+                    Subject   = "Order Confirmation SMS",
+                    Message   = $"Hi {evt.FirstName}, your order for {evt.TotalPrice:C} has been placed!",
+                    Status    = "Sent",
+                    Metadata  = new Dictionary<string, string>
+                    {
+                        { "AddressLine", evt.AddressLine }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "⚠️ Failed to persist notification log for event {EventId}", evt.Id);
+            }
+        }
+
+        logger.LogInformation("📱 [SMS] Dispatched order SMS for customer {UserName}", evt.UserName);
     }
 
     private static async Task SimulateEmailAsync(string to, string subject, string body)
     {
         await Task.Delay(50);
-    }
-}
-
-// ── Order Placed → Shipped Notification (for future Ordering.API) ─────────────
-
-public class OrderPlacedEventHandler(ILogger<OrderPlacedEventHandler> logger)
-    : IConsumer<CartCheckoutEvent>  // reuse same event shape for now
-{
-    public Task Consume(ConsumeContext<CartCheckoutEvent> context)
-    {
-        var evt = context.Message;
-
-        logger.LogInformation(
-            "📦 [ORDER PLACED] Internal log — Customer: {UserName}, Amount: {Total:C}",
-            evt.UserName, evt.TotalPrice);
-
-        return Task.CompletedTask;
     }
 }

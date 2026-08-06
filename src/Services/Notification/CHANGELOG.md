@@ -1,16 +1,41 @@
 # Notification Service — Feature Changelog
 
-## Feature: Notification.API Microservice
+## v1.4.1 — Idempotent Notification Processing & Poison Message Guard
+
+### Fixes & Improvements
+- **Idempotent Audit Persistence**: `NotificationLog` now contains `EventId` (sourced from `IntegrationEvent.Id`). `MongoNotificationRepository` enforces a unique compound index on `(eventId, channel)` and performs an idempotent upsert (`ReplaceOneAsync` with `IsUpsert = true`).
+- **Resilience**: Consumer event handlers wrap log persistence in `try/catch`. Database logging failures no longer throw inside `Consume()`, preventing duplicate email/SMS re-sends on MassTransit retry.
+- **Poison Message Prevention**: Safe extraction of credit card last 4 digits (`(evt.CardNumber is { Length: >= 4 } c ? c[^4..] : "****")`) prevents `ArgumentOutOfRangeException` / `NullReferenceException` on short/null card numbers.
+
+---
+
+## v1.4.0 — MongoDB Audit Trail Integration
+
+### New: MongoDB Notification Log Persistence
+- `INotificationRepository` / `MongoNotificationRepository` service added.
+- Every dispatched email and SMS is now persisted to **MongoDB** (`notificationdb → NotificationLogs` collection).
+- Logs include: `eventType`, `recipient`, `channel` (Email/SMS), `subject`, `message`, `status`, `timestamp`, and event `metadata`.
+- New REST endpoint: `GET /api/notifications/logs` — returns up to 50 recent notification logs sorted by timestamp.
+- MongoDB health check added via `AspNetCore.HealthChecks.MongoDb`.
+
+### Infrastructure Updates
+- Docker service: `mongodb` container added (port `27017:27017`, volume `mongo_data:/data/db`).
+- `notification.api` depends on `mongodb` and `messagebroker` in Docker Compose.
+- Connection string: `mongodb://mongodb:27017/notificationdb` (via `DatabaseSettings__ConnectionString` env var).
+
+---
+
+## v1.0.0 — Initial Feature: Notification.API Microservice
 
 ### Summary
-New Notification microservice that subscribes to domain events via RabbitMQ
+Notification microservice that subscribes to domain events via RabbitMQ
 and dispatches emails and SMS notifications to customers.
 
 ### Event Consumers
 | Event | Queue | Action |
 |-------|-------|--------|
-| `UserRegisteredEvent` | `user-registered-notification-queue` | Send welcome email |
-| `CartCheckoutEvent` | `cart-checkout-notification-queue` | Send order confirmation email + SMS |
+| `UserRegisteredEvent` | `user-registered-notification-queue` | Send welcome email + log to MongoDB |
+| `CartCheckoutEvent` | `cart-checkout-notification-queue` | Send order confirmation email + SMS + log to MongoDB |
 
 ### Notification Templates
 **Welcome Email** (on user registration):
@@ -38,3 +63,4 @@ and dispatches emails and SMS notifications to customers.
 
 ### Testing
 - `dotnet build` — 0 errors ✅
+

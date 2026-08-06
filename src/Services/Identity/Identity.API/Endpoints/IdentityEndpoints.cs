@@ -93,7 +93,7 @@ public class IdentityEndpoints : ICarterModule
         ILogger<IdentityEndpoints> logger)
     {
         if (await userStore.EmailExistsAsync(request.Email))
-            return Results.BadRequest(new { Error = "A user with this email already exists." });
+            return Results.Conflict(new { Error = "A user with this email already exists." });
 
         var newUser = new User
         {

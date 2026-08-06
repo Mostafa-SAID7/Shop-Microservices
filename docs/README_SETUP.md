@@ -1,4 +1,4 @@
-﻿# 🎯 Shop Microservices - Setup & Deployment Guide
+# 🎯 Shop Microservices - Setup & Deployment Guide
 
 **Current Status:** ✅ **READY FOR DEPLOYMENT**
 
@@ -183,7 +183,7 @@ docker-compose logs ordering.api
 docker stats
 
 # Check network connectivity
-docker-compose exec catalog.api ping basketdb
+docker-compose exec catalog.api ping cartdb
 ```
 
 ---
@@ -256,7 +256,7 @@ docker-compose restart catalogdb
 ## 📝 Database Credentials
 
 ### PostgreSQL
-- **Servers:** catalogdb, basketdb, trackingdb
+- **Servers:** catalogdb, cartdb, trackingdb
 - **Username:** postgres
 - **Password:** postgres
 - **Ports:** 5432, 5433, 5434

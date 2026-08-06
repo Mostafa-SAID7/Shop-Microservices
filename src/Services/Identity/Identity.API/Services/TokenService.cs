@@ -22,7 +22,8 @@ public class TokenService(IConfiguration config) : ITokenService
     public string GenerateJwtToken(string userId, string email, string role)
     {
         var secretKey = config["JwtSettings:Secret"]
-            ?? throw new InvalidOperationException("JWT Secret is not configured.");
+            ?? throw new InvalidOperationException(
+                   "JwtSettings:Secret is required. Set it via environment variable or secrets.");
         var key     = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds   = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

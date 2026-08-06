@@ -29,11 +29,12 @@
  Catalog      Cart     Ordering   Tracking   Payment   Identity Notification
   (6001)     (6003)     (6004)     (6006)     (6007)     (6068)     (6069)
     │          │          │          │          │          │          │
- PostgreSQL PostgreSQL SQL Server PostgreSQL SQL Server  In-Memory  RabbitMQ
-            + Redis      │                               Store     Consumers
-                         ▼ (gRPC)
-                      Discount
-                       (6002)
+ PostgreSQL PostgreSQL SQL Server PostgreSQL SQL Server  MongoDB    MongoDB
+            + Redis      │                               (Users)   (Log Audit)
+                         ▼ (gRPC)                           │          │
+                      Discount                              └────┬─────┘
+                       (6002)                                    ▼
+                                                             RabbitMQ
 ```
 
 ---
@@ -50,8 +51,8 @@
 | **Shopping.Web** | 8080 | **6065** | ASP.NET Core Razor Pages | — | Responsive e-commerce Web UI frontend |
 | **Tracking.API** | 8080 | **6006** | Minimal API + Carter | PostgreSQL | Order tracking status, fulfillment updates |
 | **Payment.API** | 8080 | **6007** | Web API + Carter | SQL Server | Payment gateway integration, transaction processing |
-| **Identity.API** | 8080 | **6068** | Minimal API + Carter + JWT | In-Memory / EF Core | User registration, authentication, JWT token issuance |
-| **Notification.API**| 8080 | **6069** | Web API + MassTransit Consumers | — | Event-driven welcome emails, order confirmation SMS |
+| **Identity.API** | 8080 | **6068** | Minimal API + Carter + JWT | MongoDB / In-Memory | User registration, authentication, JWT token issuance |
+| **Notification.API**| 8080 | **6069** | Web API + MassTransit Consumers | MongoDB | Event-driven welcome emails, order confirmation SMS, audit logs |
 
 ---
 

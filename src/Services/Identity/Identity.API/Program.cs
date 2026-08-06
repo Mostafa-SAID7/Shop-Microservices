@@ -13,11 +13,29 @@ builder.Services.AddCarter();
 
 // Identity services
 builder.Services.AddSingleton<ITokenService, TokenService>();
-builder.Services.AddSingleton<IUserStore, InMemoryUserStore>();
 
-// JWT Authentication
+// MongoDB registration for Identity storage
+var mongoConnString = builder.Configuration["DatabaseSettings:ConnectionString"]
+    ?? builder.Configuration.GetConnectionString("IdentityDb");
+
+if (!string.IsNullOrEmpty(mongoConnString))
+{
+    var mongoUrl = new MongoDB.Driver.MongoUrl(mongoConnString);
+    var mongoClient = new MongoDB.Driver.MongoClient(mongoUrl);
+    var databaseName = mongoUrl.DatabaseName ?? "identitydb";
+    builder.Services.AddSingleton<MongoDB.Driver.IMongoDatabase>(_ => mongoClient.GetDatabase(databaseName));
+    builder.Services.AddSingleton<IUserStore, MongoUserStore>();
+}
+else
+{
+    // Fallback for tests/local execution without live MongoDB
+    builder.Services.AddSingleton<IUserStore, InMemoryUserStore>();
+}
+
+// JWT Authentication — fails startup if JwtSettings:Secret is absent
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]
-    ?? "SuperSecretKeyForShopMicroservicesIdentityApi_2026!";
+    ?? throw new InvalidOperationException(
+           "JwtSettings:Secret is required. Set it via environment variable or secrets.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
