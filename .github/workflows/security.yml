@@ -36,6 +36,11 @@ jobs:
         with:
           languages: csharp
           queries: security-and-quality
+          config: |
+            paths-ignore:
+              - '**/obj/**'
+              - '**/bin/**'
+              - '**/*.g.cs'
 
       - name: 🔨 Build for Analysis
         run: |
