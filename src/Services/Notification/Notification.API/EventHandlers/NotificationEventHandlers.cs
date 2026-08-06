@@ -35,24 +35,35 @@ public class UserRegisteredEventHandler(
 
         await SimulateEmailAsync(evt.Email, subject, body);
 
-        // Persist notification log to MongoDB (notificationdb -> NotificationLogs)
+        // Persist notification log to MongoDB — idempotent upsert on EventId+Channel.
+        // Wrapped in try/catch: a DB failure must NOT cause the handler to throw,
+        // because that would trigger MassTransit retry and re-send the welcome email.
         if (repo is not null)
         {
-            await repo.LogNotificationAsync(new NotificationLog
+            try
             {
-                EventType = "UserRegistered",
-                Recipient = evt.Email,
-                Channel = "Email",
-                Subject = subject,
-                Message = body,
-                Status = "Sent",
-                Metadata = new Dictionary<string, string>
+                await repo.LogNotificationAsync(new NotificationLog
                 {
-                    { "UserId", evt.UserId },
-                    { "FirstName", evt.FirstName },
-                    { "LastName", evt.LastName }
-                }
-            });
+                    EventId   = evt.Id,
+                    EventType = "UserRegistered",
+                    Recipient = evt.Email,
+                    Channel   = "Email",
+                    Subject   = subject,
+                    Message   = body,
+                    Status    = "Sent",
+                    Metadata  = new Dictionary<string, string>
+                    {
+                        { "UserId",     evt.UserId },
+                        { "FirstName",  evt.FirstName },
+                        { "LastName",   evt.LastName }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log but do not rethrow — audit failure must not duplicate the notification.
+                logger.LogWarning(ex, "⚠️ Failed to persist notification log for event {EventId}", evt.Id);
+            }
         }
 
         logger.LogInformation("✅ [WELCOME EMAIL] Successfully dispatched and logged for {Email}", evt.Email);
@@ -90,7 +101,7 @@ public class CartCheckoutEventHandler(
                     Customer  : {evt.UserName}
                     Total     : {evt.TotalPrice:C}
                     Ship to   : {evt.AddressLine}, {evt.State} {evt.ZipCode}, {evt.Country}
-                    Payment   : **** **** **** {evt.CardNumber[^4..]}
+                    Payment   : **** **** **** {(evt.CardNumber is { Length: >= 4 } c ? c[^4..] : "****")}
 
                     We'll notify you once your order ships.
 
@@ -102,39 +113,48 @@ public class CartCheckoutEventHandler(
 
         logger.LogInformation("✅ [ORDER CONFIRMATION] Dispatched to {Email}", evt.EmailAddress);
 
-        // Persist email notification log to MongoDB
+        // Persist email + SMS logs — idempotent upserts on EventId+Channel.
+        // try/catch prevents DB failures from re-triggering delivery on MassTransit retry.
         if (repo is not null)
         {
-            await repo.LogNotificationAsync(new NotificationLog
+            try
             {
-                EventType = "CartCheckout",
-                Recipient = evt.EmailAddress,
-                Channel = "Email",
-                Subject = subject,
-                Message = body,
-                Status = "Sent",
-                Metadata = new Dictionary<string, string>
+                await repo.LogNotificationAsync(new NotificationLog
                 {
-                    { "UserName", evt.UserName },
-                    { "TotalPrice", evt.TotalPrice.ToString("F2") },
-                    { "Country", evt.Country }
-                }
-            });
+                    EventId   = evt.Id,
+                    EventType = "CartCheckout",
+                    Recipient = evt.EmailAddress,
+                    Channel   = "Email",
+                    Subject   = subject,
+                    Message   = body,
+                    Status    = "Sent",
+                    Metadata  = new Dictionary<string, string>
+                    {
+                        { "UserName",   evt.UserName },
+                        { "TotalPrice", evt.TotalPrice.ToString("F2") },
+                        { "Country",    evt.Country }
+                    }
+                });
 
-            // Persist SMS notification log to MongoDB
-            await repo.LogNotificationAsync(new NotificationLog
-            {
-                EventType = "CartCheckout",
-                Recipient = evt.UserName,
-                Channel = "SMS",
-                Subject = "Order Confirmation SMS",
-                Message = $"Hi {evt.FirstName}, your order for {evt.TotalPrice:C} has been placed!",
-                Status = "Sent",
-                Metadata = new Dictionary<string, string>
+                await repo.LogNotificationAsync(new NotificationLog
                 {
-                    { "AddressLine", evt.AddressLine }
-                }
-            });
+                    EventId   = evt.Id,
+                    EventType = "CartCheckout",
+                    Recipient = evt.UserName,
+                    Channel   = "SMS",
+                    Subject   = "Order Confirmation SMS",
+                    Message   = $"Hi {evt.FirstName}, your order for {evt.TotalPrice:C} has been placed!",
+                    Status    = "Sent",
+                    Metadata  = new Dictionary<string, string>
+                    {
+                        { "AddressLine", evt.AddressLine }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "⚠️ Failed to persist notification log for event {EventId}", evt.Id);
+            }
         }
 
         logger.LogInformation("📱 [SMS] Dispatched order SMS for customer {UserName}", evt.UserName);

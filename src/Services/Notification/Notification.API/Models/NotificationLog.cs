@@ -13,6 +13,10 @@ public class NotificationLog
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; } = string.Empty;
 
+    /// <summary>Idempotency key — sourced from IntegrationEvent.Id so retries are no-ops.</summary>
+    [BsonElement("eventId")]
+    public Guid EventId { get; set; } = Guid.Empty;
+
     [BsonElement("eventType")]
     public string EventType { get; set; } = string.Empty; // "UserRegistered" | "CartCheckout"
 
