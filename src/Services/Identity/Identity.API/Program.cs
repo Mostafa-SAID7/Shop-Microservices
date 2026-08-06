@@ -32,9 +32,10 @@ else
     builder.Services.AddSingleton<IUserStore, InMemoryUserStore>();
 }
 
-// JWT Authentication
+// JWT Authentication — fails startup if JwtSettings:Secret is absent
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]
-    ?? "SuperSecretKeyForShopMicroservicesIdentityApi_2026!";
+    ?? throw new InvalidOperationException(
+           "JwtSettings:Secret is required. Set it via environment variable or secrets.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

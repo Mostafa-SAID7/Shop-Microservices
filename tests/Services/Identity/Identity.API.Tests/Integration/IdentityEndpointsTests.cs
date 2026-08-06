@@ -4,6 +4,7 @@ using FluentAssertions;
 using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -20,6 +21,14 @@ public sealed class IdentityTestFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
     {
         builder.UseEnvironment("Test");
+
+        // Inject a test-only JWT secret so the host starts without any real secrets.
+        // This is intentionally isolated from production config — never a shared fallback.
+        builder.ConfigureAppConfiguration(cfg =>
+            cfg.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["JwtSettings:Secret"] = "TestOnlySecret_NotUsedInProduction_32chars!"
+            }));
 
         builder.ConfigureServices(services =>
         {
