@@ -135,10 +135,11 @@ jobs:
             image: shoppingweb
             changed: ${{ needs.changed-services.outputs.web }}
 
-    # Skip if service didn't change (unless tag push or manual dispatch with "all")
+    # Skip if service didn't change (unless tag push, master push, or manual dispatch with "all")
     if: |
       github.event_name == 'workflow_dispatch' ||
-      startsWith(github.ref, 'refs/tags/')
+      startsWith(github.ref, 'refs/tags/') ||
+      matrix.changed == 'true'
 
     steps:
       - name: 📥 Checkout
