@@ -64,9 +64,17 @@ public class UserRegisteredEventHandler(
                 // Log but do not rethrow — database audit failure must not duplicate the notification.
                 logger.LogWarning(ex, "⚠️ MongoDB failure persisting notification log for event {EventId}", evt.Id);
             }
-            catch (Exception ex) when (ex is InvalidOperationException or TimeoutException)
+            catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
             {
-                logger.LogWarning(ex, "⚠️ Transient exception persisting notification log for event {EventId}", evt.Id);
+                throw;
+            }
+            catch (TimeoutException ex)
+            {
+                logger.LogWarning(ex, "⚠️ Timed out while persisting notification log for event {EventId}", evt.Id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogWarning(ex, "⚠️ Invalid operation persisting notification log for event {EventId}", evt.Id);
             }
         }
 
@@ -173,9 +181,17 @@ public class CartCheckoutEventHandler(
             {
                 logger.LogWarning(ex, "⚠️ MongoDB failure persisting notification log for event {EventId}", evt.Id);
             }
-            catch (Exception ex) when (ex is InvalidOperationException or TimeoutException)
+            catch (OperationCanceledException) when (context.CancellationToken.IsCancellationRequested)
             {
-                logger.LogWarning(ex, "⚠️ Transient exception persisting notification log for event {EventId}", evt.Id);
+                throw;
+            }
+            catch (TimeoutException ex)
+            {
+                logger.LogWarning(ex, "⚠️ Timed out while persisting notification log for event {EventId}", evt.Id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogWarning(ex, "⚠️ Invalid operation persisting notification log for event {EventId}", evt.Id);
             }
         }
     }
