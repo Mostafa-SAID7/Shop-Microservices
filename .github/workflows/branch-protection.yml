@@ -1,9 +1,14 @@
 name: 🛡️ Apply Branch Protection Rules
 
-# This workflow applies branch protection rules programmatically using the GitHub CLI.
-# It is triggered manually (workflow_dispatch) or on pushes to master that touch this file.
-# The GITHUB_TOKEN must have 'administration: write' permission (requires a PAT with
-# repo-level admin rights stored as the secret ADMIN_PAT).
+# Applies branch protection to master and develop via the GitHub REST API.
+#
+# PREREQUISITE — create a PAT and store it as a repo secret named ADMIN_PAT:
+#   1. https://github.com/settings/tokens/new  →  repo scope (full)
+#   2. Settings → Secrets and variables → Actions → New repository secret
+#      Name: ADMIN_PAT
+#   3. Trigger this workflow manually: Actions → Run workflow
+#
+# If ADMIN_PAT is absent the job warns and exits 0 (no hard failure).
 
 on:
   workflow_dispatch:
@@ -24,8 +29,24 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
+      # ── Guard: skip gracefully when ADMIN_PAT is not yet configured ─────────
+      - name: 🔑 Check ADMIN_PAT secret
+        id: check
+        env:
+          TOKEN: ${{ secrets.ADMIN_PAT }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::ADMIN_PAT secret is not set — branch protection rules were NOT applied."
+            echo "::warning::Create a classic PAT (repo scope) at https://github.com/settings/tokens/new"
+            echo "::warning::then store it as a repo secret named ADMIN_PAT and re-run this workflow."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # ── master branch protection ────────────────────────────────────────────
       - name: 🔒 Protect master branch
+        if: steps.check.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: |
@@ -48,9 +69,13 @@ jobs:
 
       # ── develop branch protection ───────────────────────────────────────────
       - name: 🔒 Protect develop branch
+        if: steps.check.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: |
+          # Ensure develop exists (create from master if not)
+          git fetch origin develop 2>/dev/null || git push origin HEAD:develop
+
           gh api \
             --method PUT \
             -H "Accept: application/vnd.github+json" \
@@ -65,11 +90,26 @@ jobs:
             -f required_conversation_resolution=true
           echo "✅ develop branch protection applied."
 
+      # ── Step summary ─────────────────────────────────────────────────────────
       - name: 📋 Summary
+        if: always()
+        env:
+          SKIP: ${{ steps.check.outputs.skip }}
         run: |
-          echo "### 🛡️ Branch Protection Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Branch | Required Checks | Approvals | CODEOWNERS | Dismiss Stale |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|----------------|-----------|------------|---------------|" >> $GITHUB_STEP_SUMMARY
-          echo "| master | Build + Unit + Integration + Format + CodeQL | 1 | ✅ | ✅ |" >> $GITHUB_STEP_SUMMARY
-          echo "| develop | Build + Unit + Format | 1 | ✅ | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "### 🛡️ Branch Protection Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$SKIP" = "true" ]; then
+            echo "⚠️ **Skipped — \`ADMIN_PAT\` secret not configured.**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Steps to enable:**" >> "$GITHUB_STEP_SUMMARY"
+            echo "1. Go to <https://github.com/settings/tokens/new>" >> "$GITHUB_STEP_SUMMARY"
+            echo "2. Create a **classic PAT** with the \`repo\` scope (full control)" >> "$GITHUB_STEP_SUMMARY"
+            echo "3. Add it at **Settings → Secrets and variables → Actions → New repository secret**" >> "$GITHUB_STEP_SUMMARY"
+            echo "   Name: \`ADMIN_PAT\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "4. Re-run this workflow: **Actions → 🛡️ Apply Branch Protection Rules → Run workflow**" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| Branch | Required Checks | Approvals | CODEOWNERS | Dismiss Stale |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|--------|----------------|-----------|------------|---------------|" >> "$GITHUB_STEP_SUMMARY"
+            echo "| master | Build + Unit + Integration + Format + CodeQL | 1 | ✅ | ✅ |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| develop | Build + Unit + Format | 1 | ✅ | ✅ |" >> "$GITHUB_STEP_SUMMARY"
+          fi
