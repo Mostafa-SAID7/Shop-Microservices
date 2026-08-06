@@ -23,12 +23,31 @@ public sealed class IdentityTestFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            // Remove all MassTransit hosted/bus registrations
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(IBus));
-            if (descriptor is not null) services.Remove(descriptor);
+            // Remove ALL MassTransit registrations (bus + hosted services).
+            // Only removing IBus is not enough — the RabbitMQ IHostedService entries
+            // still try to connect to the broker at WebApplicationFactory startup,
+            // causing the test host to crash before any test runs.
+            var massTransitDescriptors = services
+                .Where(d =>
+                    d.ServiceType.FullName != null &&
+                    d.ServiceType.FullName.StartsWith("MassTransit", StringComparison.Ordinal))
+                .ToList();
+            foreach (var d in massTransitDescriptors)
+                services.Remove(d);
 
-            // Re-register MassTransit using in-memory transport only
+            // Also remove the generic IHostedService entries that MassTransit registers
+            // (IBusControl, etc.) so nothing tries to dial RabbitMQ at startup.
+            var hostedServices = services
+                .Where(d =>
+                    d.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService) &&
+                    d.ImplementationType?.FullName != null &&
+                    d.ImplementationType.FullName.Contains("MassTransit",
+                        StringComparison.Ordinal))
+                .ToList();
+            foreach (var d in hostedServices)
+                services.Remove(d);
+
+            // Re-register MassTransit with in-memory transport only — no broker needed.
             services.AddMassTransit(x =>
             {
                 x.UsingInMemory((ctx, cfg) => cfg.ConfigureEndpoints(ctx));
